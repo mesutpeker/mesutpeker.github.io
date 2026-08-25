@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <title>Öğrenci Listesi Çıkarıcı</title>
+    <link href="vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.css">
+    <!-- Kendi CSS dosyalarımız -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+    <div class="header-section">
+        <div class="container">
+            <h1 class="text-center header-title">Öğrenci Listesi Çıkarıcı</h1>
+            <p class="text-center header-subtitle">PDF dosyalarından kolayca öğrenci listelerini çıkarın</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="alert-heading h5 mb-0">E-Okul'dan PDF İndirme Adımları:</h2>
+                        <button type="button" class="btn btn-warning btn-lg pulse-btn fw-bold shadow" data-bs-toggle="modal" data-bs-target="#pdfGuideModal">
+                            <i class="bi bi-question-circle-fill"></i> Nasıl İndirilir?
+                        </button>
+                    </div>
+                    <ol>
+                        <li>https://e-okul.meb.gov.tr adresinden giriş yapın.</li>
+                        <li>Sol Menüden "Öğrenci İşlemleri"ne gidin.</li>
+                        <li>Raporlar kısmından "Şube Listesi (Öğrenci No Sıralı)" seçin.</li>
+                        <li>Listeyi görüntüleyin ve PDF olarak indirin.</li>
+                        <li>İndirdiğiniz dosyayı aşağıdaki alana yükleyin.</li>
+                    </ol>
+                </div>
+                
+                <button type="button" id="upload-area" class="upload-button mb-3" aria-describedby="privacy-summary library-status" disabled>
+                    <span id="upload-text">
+                        <i class="bi bi-cloud-arrow-up fs-1 mb-3" style="color: #6c63ff;"></i>
+                        <span class="upload-title mb-2">PDF Dosyanızı Yükleyin</span>
+                        <span class="mb-0 text-muted">PDF dosyasını seçmek için tıklayın veya sürükleyip bırakın</span>
+                    </span>
+                </button>
+                <input type="file" id="pdf-file" accept=".pdf,application/pdf" class="hidden" aria-label="PDF dosyası seçin">
+                <p id="library-status" class="visually-hidden" role="status" aria-live="polite">PDF işleyici yükleniyor.</p>
+                <div id="processing-status" class="processing-status hidden" role="status" aria-live="polite">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="spinner-border text-primary" aria-hidden="true"></div>
+                        <span id="processing-text">PDF işleniyor…</span>
+                    </div>
+                    <progress id="processing-progress" max="100" value="0" aria-label="PDF işleme ilerlemesi"></progress>
+                    <button type="button" class="btn btn-outline-danger btn-sm mt-2" id="cancelProcessingBtn">İptal</button>
+                </div>
+                <p id="privacy-summary" class="privacy-note text-center"><i class="bi bi-shield-check" aria-hidden="true"></i> PDF yalnızca bu cihazda işlenir; öğrenci verileri bir sunucuya gönderilmez.</p>
+                <p id="error-message" class="alert alert-danger text-center hidden" role="alert" aria-live="assertive"></p>
+                <pre id="debug-info" class="debug-info" hidden></pre>
+            </div>
+        </div>
+        
+        <div id="results-container">
+            <!-- Sınıf kartları buraya eklenecek -->
+        </div>
+
+        <div class="card hidden" id="no-results">
+            <div class="card-body text-center">
+                <p class="mb-0">Sınıf bilgisi bulunamadı.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Öğrenci Düzenleme Modal -->
+    <div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title h5" id="editStudentModalLabel">Öğrenciyi Düzenle</h2>
+                        <p id="editStudentClass" class="text-muted mb-0"></p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editStudentNo" class="form-label">Öğrenci No</label>
+                        <input type="text" inputmode="numeric" class="form-control" id="editStudentNo" maxlength="15">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStudentFirstName" class="form-label">Adı</label>
+                        <input type="text" class="form-control" id="editStudentFirstName" maxlength="80">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStudentLastName" class="form-label">Soyadı</label>
+                        <input type="text" class="form-control" id="editStudentLastName" maxlength="80">
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-danger" id="deleteStudentBtn">Öğrenciyi Sil</button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="button" class="btn btn-primary" id="saveStudentEditBtn">Kaydet</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Özel Çizelge Modal -->
+    <div class="modal fade" id="customScheduleModal" tabindex="-1" aria-labelledby="customScheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #28a745; color: white;">
+                    <h2 class="modal-title h5" id="customScheduleModalLabel">Özel Çizelge Oluştur</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1)"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="customScheduleTitle" class="form-label">Çizelge Başlığı</label>
+                            <input type="text" class="form-control" id="customScheduleTitle" placeholder="Özel Çizelge">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="columnCount" class="form-label">Sütun Sayısı</label>
+                            <input type="number" class="form-control" id="columnCount" min="1" max="20" value="5" placeholder="Sütun sayısı girin">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Sütun Başlıkları</label>
+                            <div id="columnHeaders" class="row">
+                                <!-- Dinamik olarak sütun başlık input'ları buraya eklenecek -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="customSchedulePreview" class="my-3 table-responsive" style="max-height: 60vh; overflow-y: auto;">
+                        <p class="text-center">Sütun başlıklarını doldurun ve "Oluştur" butonuna tıklayın.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary" id="generateCustomScheduleBtn">Oluştur</button>
+                    <button type="button" class="btn btn-success" id="printCustomScheduleBtn" disabled>Yazdır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ödev Çizelgesi Modal -->
+    <div class="modal fade" id="homeworkScheduleModal" tabindex="-1" aria-labelledby="homeworkScheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #6a3de8; color: white;">
+                    <h2 class="modal-title h5" id="homeworkScheduleModalLabel">Ödev Çizelgesi</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1)"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="scheduleTitle" class="form-label">Çizelge Başlığı</label>
+                            <input type="text" class="form-control" id="scheduleTitle" placeholder="Ödev Çizelgesi">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Çizelge Türü</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="scheduleType" id="weeklySchedule" value="weekly" checked>
+                                <label class="form-check-label" for="weeklySchedule">
+                                    Haftalık
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="scheduleType" id="dailySchedule" value="daily">
+                                <label class="form-check-label" for="dailySchedule">
+                                    Günlük
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="daySelectionArea" style="display: none;">
+                        <div class="col-md-12">
+                            <label class="form-label">Gösterilecek Günler</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" id="monday" value="1" checked>
+                                        <label class="form-check-label" for="monday">Pazartesi</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" id="tuesday" value="2" checked>
+                                        <label class="form-check-label" for="tuesday">Salı</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" id="wednesday" value="3" checked>
+                                        <label class="form-check-label" for="wednesday">Çarşamba</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" id="thursday" value="4" checked>
+                                        <label class="form-check-label" for="thursday">Perşembe</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" id="friday" value="5" checked>
+                                        <label class="form-check-label" for="friday">Cuma</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" id="saturday" value="6">
+                                        <label class="form-check-label" for="saturday">Cumartesi</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" id="sunday" value="0">
+                                        <label class="form-check-label" for="sunday">Pazar</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label">Bitiş Tarihi</label>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                    </div>
+                    <div id="schedulePreview" class="my-3 table-responsive" style="max-height: 60vh; overflow-y: auto;">
+                        <p class="text-center">Tarih aralığı seçin ve "Oluştur" butonuna tıklayın.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary" id="generateScheduleBtn">Oluştur</button>
+                    <button type="button" class="btn btn-success" id="printScheduleBtn" disabled>Yazdır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sınıf Oturma Planı Modal -->
+    <div class="modal fade" id="seatingPlanModal" tabindex="-1" aria-labelledby="seatingPlanModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #FF5722; color: white;">
+                    <h2 class="modal-title h5" id="seatingPlanModalLabel">Sınıf Oturma Planı</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1)"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="seatingPlanTitle" class="form-label">Plan Başlığı</label>
+                            <input type="text" class="form-control" id="seatingPlanTitle" placeholder="Örn: 4-A Sınıfı Oturma Planı" value="Sınıf Oturma Planı">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="deskCount" class="form-label">Sıra Sayısı</label>
+                            <input type="number" class="form-control" id="deskCount" min="1" max="30" value="15" placeholder="Sıra sayısı girin">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="printColumns" class="form-label">Yazdırma Düzeni</label>
+                            <select class="form-control" id="printColumns">
+                                <option value="2">2 Sütun</option>
+                                <option value="3" selected>3 Sütun</option>
+                                <option value="4">4 Sütun</option>
+                                <option value="5">5 Sütun</option>
+                                <option value="auto">Otomatik</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> 
+                                <strong>Nasıl kullanılır:</strong> Her sıraya 2 öğrenci otomatik yerleştirilecek. 
+                                Öğrenci yerlerini değiştirmek için öğrenciye tıklayın ve yeni yerine tıklayın.
+                                Plan başlığını dilediğiniz gibi düzenleyebilir, yazdırmadan önce son kez değiştirebilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="seatingCapacityMessage" class="alert alert-info mb-3 hidden" role="status" aria-live="polite"></div>
+
+                    <div id="seatingPlanPreview" class="my-3" style="max-height: 70vh; overflow-y: auto;">
+                        <p class="text-center">Sıra sayısını belirleyin ve "Oluştur" butonuna tıklayın.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary" id="generateSeatingPlanBtn">Oluştur</button>
+                    <button type="button" class="btn btn-warning" id="shuffleSeatingPlanBtn" disabled>Karıştır</button>
+                    <button type="button" class="btn btn-success" id="printSeatingPlanBtn" disabled>Yazdır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Oturma planı yazdırma başlığı modalı -->
+    <div class="modal fade" id="printTitleModal" tabindex="-1" aria-labelledby="printTitleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="printTitleModalLabel">Yazdırma Başlığını Düzenle</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="printTitle" class="form-label">Başlık</label>
+                    <input type="text" class="form-control" id="printTitle" maxlength="120">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-success" id="confirmPrintBtn">Yazdır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF İndirme Rehberi Modal -->
+    <div class="modal fade" id="pdfGuideModal" tabindex="-1" aria-labelledby="pdfGuideModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #007bff; color: white;">
+                    <h2 class="modal-title h5" id="pdfGuideModalLabel">
+                        <i class="bi bi-file-earmark-pdf"></i> E-Okul'dan PDF İndirme Rehberi
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1)"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        
+                        <!-- Genel Açıklama -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <h3 class="h6"><i class="bi bi-info-circle"></i> Bu Rehber Hakkında:</h3>
+                                    <p class="mb-0">Bu rehber E-Okul sisteminden öğrenci listesi PDF'ini indirmenin adım adım görsel kılavuzudur.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Adım 1 -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="step-card">
+                                    <div class="step-header">
+                                        <span class="step-number">1</span>
+                                        <h3 class="step-title h6">E-Okul'a Giriş Yapın ve Öğrenci İşlemlerine Gidin</h3>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="row">
+                                                                                         <div class="col-md-12">
+                                                 <div class="step-image-container">
+                                                     <img src="images/step1.png" class="img-fluid step-image" alt="E-Okul ortaöğretim öğrenci işlemleri ekranı">
+                                                 </div>
+                                                 <div class="step-instructions-inline">
+                                                     <p><i class="bi bi-1-circle-fill text-primary"></i> E-Okul'a giriş yapın ve sol menüden <span class="highlight">"Ortaöğretim Öğrenci İşlemleri"</span> seçin</p>
+                                                 </div>
+                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adım 2 -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="step-card">
+                                    <div class="step-header">
+                                        <span class="step-number">2</span>
+                                        <h3 class="step-title h6">Öğrenci Arama Bölümüne Gidin</h3>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="step-image-container">
+                                                    <img src="images/step2.png" class="img-fluid step-image" alt="E-Okul öğrenci arama ve yazdır düğmesi ekranı">
+                                                </div>
+                                                <div class="step-instructions-inline">
+                                                    <p><i class="bi bi-2-circle-fill text-primary"></i> Öğrenci bilgilerini girin ve mavi <span class="highlight">"Yazdır"</span> butonuna tıklayın</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adım 3 -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="step-card">
+                                    <div class="step-header">
+                                        <span class="step-number">3</span>
+                                        <h3 class="step-title h6">Şube Listesi Raporunu Seçin</h3>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="step-image-container">
+                                                    <img src="images/step3.png" class="img-fluid step-image" alt="E-Okul şube listesi raporu seçim ekranı">
+                                                </div>
+                                                <div class="step-instructions-inline">
+                                                    <p><i class="bi bi-3-circle-fill text-primary"></i> Rapor listesinden <span class="highlight">"Şube Listesi (Öğrenci No Sıralı)"</span> raporunu seçin</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adım 4 -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="step-card">
+                                    <div class="step-header">
+                                        <span class="step-number">4</span>
+                                        <h3 class="step-title h6">PDF Dosyasını İndirin</h3>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="step-image-container">
+                                                    <img src="images/step4.png" class="img-fluid step-image" alt="E-Okul raporu PDF olarak indirme ekranı">
+                                                </div>
+                                                <div class="step-instructions-inline">
+                                                    <p><i class="bi bi-4-circle-fill text-primary"></i> Ayarları yapın ve yeşil <span class="highlight">"Tamam"</span> butonuna tıklayarak PDF'i indirin</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Özet -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-success">
+                                    <h3 class="h6"><i class="bi bi-check-circle"></i> Özet:</h3>
+                                    <p class="mb-0">
+                                        E-Okul → Ortaöğretim Öğrenci İşlemleri → Öğrenci Arama → Yazdır → 
+                                        Şube Listesi (Öğrenci No Sıralı) → Tamam → PDF İndir
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary" id="openEschoolBtn">
+                        <i class="bi bi-arrow-up-right-square"></i> E-Okul'a Git
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- Klasik betikler file:// üzerinden de çalışır; worker ayrıca yüklenerek
+         PDF.js'in yerel dosya güvenlik kısıtlarında sahte worker'a düşebilmesi sağlanır. -->
+    <script src="vendor/pdfjs/pdf.min.js"></script>
+    <script src="vendor/pdfjs/pdf.worker.min.js"></script>
+    <script src="js/pdfjs-loader.js"></script>
+    <script src="js/pdf-parser-core.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/pdf-processing.js"></script>
+    <script src="js/homework.js"></script>
+    <script src="js/seating-plan.js"></script>
+</body>
+</html> 

@@ -1,0 +1,343 @@
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 0.5cm;
+    }
+
+    html,
+    body {
+        width: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body > :not(#homeworkSchedulePrint):not(#customSchedulePrint):not(#seating-plan-print-section) {
+        display: none !important;
+    }
+
+    #homeworkSchedulePrint,
+    #customSchedulePrint,
+    #seating-plan-print-section {
+        position: absolute !important;
+        inset: 0 auto auto 0;
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        box-sizing: border-box !important;
+    }
+
+    #homeworkSchedulePrint *,
+    #customSchedulePrint *,
+    #seating-plan-print-section * {
+        box-sizing: border-box !important;
+    }
+
+    #homeworkSchedulePrint h2,
+    #homeworkSchedulePrint h3,
+    #customSchedulePrint h3 {
+        display: block !important;
+        margin: 0 0 0.25cm !important;
+        padding: 0 !important;
+        text-align: center !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        page-break-after: avoid !important;
+    }
+
+    #homeworkSchedulePrint table,
+    #customSchedulePrint table {
+        display: table !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border: 2px solid #000 !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        font-size: 8px !important;
+        empty-cells: show !important;
+        page-break-inside: avoid !important;
+    }
+
+    #homeworkSchedulePrint thead,
+    #customSchedulePrint thead {
+        display: table-header-group !important;
+    }
+
+    #homeworkSchedulePrint tbody,
+    #customSchedulePrint tbody {
+        display: table-row-group !important;
+    }
+
+    #homeworkSchedulePrint tr,
+    #customSchedulePrint tr {
+        display: table-row !important;
+        height: 25px !important;
+        page-break-inside: avoid !important;
+    }
+
+    #homeworkSchedulePrint th,
+    #homeworkSchedulePrint td,
+    #customSchedulePrint th,
+    #customSchedulePrint td {
+        display: table-cell !important;
+        height: 25px !important;
+        padding: 2px !important;
+        border: 1px solid #000 !important;
+        overflow: hidden !important;
+        vertical-align: middle !important;
+    }
+
+    #homeworkSchedulePrint th,
+    #customSchedulePrint th {
+        border-width: 2px !important;
+        background: #e5e7eb !important;
+        font-weight: 800 !important;
+    }
+
+    #homeworkSchedulePrint th:first-child,
+    #homeworkSchedulePrint td:first-child {
+        width: 4% !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        font-weight: 700 !important;
+    }
+
+    #customSchedulePrint th:first-child,
+    #customSchedulePrint td:first-child {
+        width: 8.75% !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        font-weight: 700 !important;
+    }
+
+    #homeworkSchedulePrint th:nth-child(2),
+    #homeworkSchedulePrint td:nth-child(2) {
+        width: 26% !important;
+        padding-left: 4px !important;
+        text-align: left !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        font-weight: 700 !important;
+    }
+
+    #customSchedulePrint th:nth-child(2),
+    #customSchedulePrint td:nth-child(2) {
+        width: 16.25% !important;
+        padding-left: 4px !important;
+        text-align: left !important;
+        white-space: normal !important;
+        font-weight: 700 !important;
+    }
+
+    #homeworkSchedulePrint th:not(:first-child):not(:nth-child(2)),
+    #customSchedulePrint th:not(:first-child):not(:nth-child(2)) {
+        height: 115px !important;
+        text-align: center !important;
+    }
+
+    #homeworkSchedulePrint .rotated-header,
+    #customSchedulePrint .rotated-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100% !important;
+        padding: 2px !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        transform: rotate(180deg) !important;
+        white-space: nowrap !important;
+        font-size: 7px !important;
+        line-height: 1.1 !important;
+    }
+
+    #homeworkSchedulePrint .header-line,
+    #customSchedulePrint .header-line {
+        display: block !important;
+    }
+
+    #homeworkSchedulePrint.cols-6-10 td,
+    #customSchedulePrint.cols-6-10 td,
+    #homeworkSchedulePrint.rows-16-30 td,
+    #customSchedulePrint.rows-16-30 td {
+        font-size: 8px !important;
+    }
+
+    #homeworkSchedulePrint.cols-11-15 td,
+    #customSchedulePrint.cols-11-15 td,
+    #homeworkSchedulePrint.rows-31-plus td,
+    #customSchedulePrint.rows-31-plus td {
+        font-size: 7px !important;
+    }
+
+    #homeworkSchedulePrint.cols-16-20 td,
+    #customSchedulePrint.cols-16-20 td {
+        padding: 1px !important;
+        font-size: 6.5px !important;
+    }
+
+    #homeworkSchedulePrint > div {
+        page-break-inside: avoid !important;
+    }
+
+    #homeworkSchedulePrint > div:not(:last-child) {
+        page-break-after: always !important;
+    }
+
+    #seating-plan-print-section {
+        --seat-cols: 3;
+        --seat-rows: 4;
+        --seat-gap: 0.22cm;
+        --seat-font: 9.5px;
+        --page-height: calc(297mm - 0.8cm);
+        height: var(--page-height) !important;
+        overflow: hidden !important;
+    }
+
+    #seating-plan-print-section .seating-plan {
+        display: grid !important;
+        grid-template-rows: auto 1fr !important;
+        gap: 0.18cm !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0.1cm !important;
+    }
+
+    #seating-plan-print-section h4 {
+        margin: 0 !important;
+        padding: 0.18cm 0.25cm !important;
+        border: 2px solid #0f172a !important;
+        border-radius: 8px !important;
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+        text-align: center !important;
+        text-transform: uppercase !important;
+        font-size: 18px !important;
+        font-weight: 900 !important;
+    }
+
+    #seating-plan-print-section .classroom {
+        display: grid !important;
+        grid-template-rows: auto 1fr !important;
+        gap: 0.15cm !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0.2cm !important;
+        border: 2px solid #0f172a !important;
+        border-radius: 10px !important;
+        background: #fff !important;
+    }
+
+    #seating-plan-print-section .teacher-area {
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 0 0.08cm !important;
+        border-bottom: 1.5px dashed #64748b !important;
+    }
+
+    #seating-plan-print-section .teacher-desk {
+        display: inline-flex !important;
+        min-width: 5.5cm !important;
+        justify-content: center !important;
+        padding: 0.12cm 0.4cm !important;
+        border: 1.5px solid #9a3412 !important;
+        border-radius: 999px !important;
+        background: #fed7aa !important;
+        color: #7c2d12 !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+    }
+
+    #seating-plan-print-section .teacher-desk i {
+        display: none !important;
+    }
+
+    #seating-plan-print-section .student-desks {
+        display: grid !important;
+        grid-template-columns: repeat(var(--seat-cols), minmax(0, 1fr)) !important;
+        grid-template-rows: repeat(var(--seat-rows), minmax(0, 1fr)) !important;
+        gap: var(--seat-gap) !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0.04cm !important;
+    }
+
+    #seating-plan-print-section .desk-row {
+        display: grid !important;
+        grid-template-rows: auto 1fr !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 1.4px solid #1e293b !important;
+        border-radius: 6px !important;
+        background: #fff !important;
+        overflow: hidden !important;
+    }
+
+    #seating-plan-print-section .desk-number {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0.03cm 0 !important;
+        border-radius: 0 !important;
+        border-bottom: 1.4px solid #334155 !important;
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+        text-align: center !important;
+        font-size: 9px !important;
+        font-weight: 800 !important;
+    }
+
+    #seating-plan-print-section .student-seats {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0 !important;
+        min-height: 0 !important;
+    }
+
+    #seating-plan-print-section .student-seat {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 0 !important;
+        padding: 0.06cm !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #fff !important;
+        color: #0f172a !important;
+        text-align: center !important;
+        font-size: var(--seat-font) !important;
+    }
+
+    #seating-plan-print-section .student-seat:first-child {
+        border-right: 1px solid #94a3b8 !important;
+    }
+
+    #seating-plan-print-section .student-name {
+        font-size: var(--seat-font) !important;
+        font-weight: 700 !important;
+        line-height: 1.1 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #seating-plan-print-section .empty-seat {
+        color: #475569 !important;
+        font-size: 8px !important;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #schedulePreview table,
+    #customSchedulePreview table {
+        min-width: 720px;
+    }
+}
