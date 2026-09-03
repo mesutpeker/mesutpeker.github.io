@@ -13,6 +13,7 @@
     const GENDER_WORD_PATTERN = /\b(Erkek|Kız)\b/iu;
     const CLASS_PATTERN = /(\d{1,2})\s*\.?\s*Sınıf\s*\/\s*([\p{L}\d-]{1,6})\s*Şubesi/iu;
     const HEADER_PATTERN = /(?:öğrenci\s*no|adı\s*soyadı|sıra\s*no|şube\s*listesi|sınıf\s*listesi)/iu;
+    const BOARDING_STATUS_PATTERN = /^(?:yatılı|gündüzlü)$/iu;
 
     function normalizeSpace(value) {
         return String(value ?? '')
@@ -153,7 +154,12 @@
 
             const remainder = normalizeSpace(columns[index].slice(genderStart + genderMatch[0].length));
             const followingColumns = columns.slice(index + 1).map(normalizeSpace).filter(Boolean);
-            afterGender = normalizeSpace([remainder, followingColumns[0] || ''].join(' '));
+            const following = followingColumns[0] || '';
+            const nameBeforeGender = normalizeName(beforeGender.replace(/^.*\d\s*/u, ''));
+            // Some e-Okul lists put the full name before gender and boarding status after it.
+            const hasNameBeforeGender = nameBeforeGender.split(' ').filter(Boolean).length >= 2;
+            const isBoardingColumn = BOARDING_STATUS_PATTERN.test(following) && (remainder || hasNameBeforeGender);
+            afterGender = normalizeSpace([remainder, isBoardingColumn ? '' : following].join(' '));
             break;
         }
 

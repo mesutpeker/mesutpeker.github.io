@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('printSeatingPlanBtn').addEventListener('click', showPrintTitleModal);
     document.getElementById('confirmPrintBtn').addEventListener('click', confirmSeatingPlanPrint);
     document.getElementById('printColumns').addEventListener('change', () => {
+        selectedStudent = null;
         if (currentSeatingPlan) renderSeatingPlan();
     });
     document.getElementById('seatingPlanTitle').addEventListener('input', event => {
@@ -76,6 +77,7 @@ function handleGenerateSeatingPlan() {
     const title = document.getElementById('seatingPlanTitle').value.trim() || 'Sınıf Oturma Planı';
     currentSeatingPlan = {
         title,
+        className: currentScheduleClass,
         deskCount,
         students: shuffleArray(students),
         assignments: createEmptyAssignments(deskCount)
@@ -121,7 +123,8 @@ function renderSeatingPlan() {
     teacherArea.appendChild(teacherDesk);
 
     const printColumns = document.getElementById('printColumns').value;
-    const desks = createSeatingElement('div', `student-desks ${printColumns !== 'auto' ? `columns-${printColumns}` : ''}`);
+    const columnCount = resolveSeatingColumns(printColumns, currentSeatingPlan.deskCount);
+    const desks = createSeatingElement('div', `student-desks columns-${columnCount}`);
     for (let desk = 1; desk <= currentSeatingPlan.deskCount; desk += 1) {
         desks.appendChild(createDeskElement(desk, currentSeatingPlan.assignments[desk]));
     }
@@ -202,11 +205,14 @@ function showPrintTitleModal() {
     input.value = document.getElementById('seatingPlanTitle').value.trim() || currentSeatingPlan.title;
     const modalElement = document.getElementById('printTitleModal');
     const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.show();
+    const confirmButton = document.getElementById('confirmPrintBtn');
+    confirmButton.disabled = true;
     modalElement.addEventListener('shown.bs.modal', () => {
+        confirmButton.disabled = false;
         input.focus();
         input.select();
     }, { once: true });
+    modal.show();
 }
 
 function confirmSeatingPlanPrint() {
@@ -216,74 +222,120 @@ function confirmSeatingPlanPrint() {
 }
 
 function executePrint(printTitle) {
-    const preview = document.getElementById('seatingPlanPreview');
-    if (!preview || !currentSeatingPlan) return;
+    if (!currentSeatingPlan) return;
     document.getElementById('seating-plan-print-section')?.remove();
-    document.getElementById('seating-print-page-style')?.remove();
-
-    const printSection = createSeatingElement('div');
-    printSection.id = 'seating-plan-print-section';
-    printSection.append(...[...preview.childNodes].map(node => node.cloneNode(true)));
-    printSection.style.display = 'block';
-    const titleElement = printSection.querySelector('h4');
-    if (titleElement) titleElement.textContent = printTitle;
-
-    const printColumns = document.getElementById('printColumns').value;
-    const columnCount = printColumns === 'auto'
-        ? resolveAutoPrintColumns(currentSeatingPlan.deskCount)
-        : Math.max(2, Math.min(5, parseInt(printColumns, 10) || 3));
-    const rowCount = Math.max(1, Math.ceil(currentSeatingPlan.deskCount / columnCount));
-    const studentDesks = printSection.querySelector('.student-desks');
-    if (studentDesks) {
-        studentDesks.className = 'student-desks';
-        studentDesks.classList.add(printColumns === 'auto' ? `desk-count-${currentSeatingPlan.deskCount}` : `print-columns-${columnCount}`);
-        studentDesks.style.setProperty('--seat-cols', String(columnCount));
-        studentDesks.style.setProperty('--seat-rows', String(rowCount));
-        studentDesks.style.setProperty('--seat-gap', `${resolveSeatGapCm(rowCount).toFixed(2)}cm`);
-        studentDesks.style.setProperty('--seat-font', `${resolveSeatFontPx(columnCount, rowCount).toFixed(1)}px`);
-    }
-
-    const pageStyle = createSeatingElement('style');
-    pageStyle.id = 'seating-print-page-style';
-    pageStyle.textContent = '@page { size: A4 portrait; margin: 0.4cm; }';
-    document.head.appendChild(pageStyle);
+    const printSection = createSeatingPrintSection(currentSeatingPlan, printTitle, document.getElementById('printColumns').value);
     document.body.appendChild(printSection);
     document.body.classList.add('print-seating');
 
-    let cleaned = false;
     const cleanup = () => {
-        if (cleaned) return;
-        cleaned = true;
         printSection.remove();
-        pageStyle.remove();
         document.body.classList.remove('print-seating');
     };
+    // Keep the document intact while the system print dialog is open.
     window.addEventListener('afterprint', cleanup, { once: true });
-    setTimeout(cleanup, 30000);
-    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    requestAnimationFrame(() => {
+        fitSeatingPrintContent(printSection);
+        requestAnimationFrame(() => window.print());
+    });
+}
+
+function resolveSeatingColumns(value, deskCount) {
+    return value === 'auto'
+        ? resolveAutoPrintColumns(deskCount)
+        : Math.max(2, Math.min(5, parseInt(value, 10) || 3));
 }
 
 function resolveAutoPrintColumns(deskCount) {
-    if (deskCount <= 6) return 2;
-    if (deskCount <= 12) return 3;
-    if (deskCount <= 20) return 4;
-    return 5;
+    // Three wider desk groups keep names readable on portrait A4.
+    return deskCount <= 8 ? 2 : 3;
 }
 
-function resolveSeatGapCm(rowCount) {
-    if (rowCount <= 2) return 0.36;
-    if (rowCount === 3) return 0.30;
-    if (rowCount === 4) return 0.24;
-    if (rowCount === 5) return 0.19;
-    if (rowCount === 6) return 0.15;
-    return 0.11;
+function createSeatingPrintSection(plan, printTitle, columns = 'auto') {
+    const columnCount = resolveSeatingColumns(columns, plan.deskCount);
+    const rowCount = Math.ceil(plan.deskCount / columnCount);
+    const section = createSeatingElement('section', 'seating-sheet');
+    section.id = 'seating-plan-print-section';
+    section.style.setProperty('--seat-cols', String(columnCount));
+    section.style.setProperty('--seat-rows', String(rowCount));
+    section.style.setProperty('--seat-gap', rowCount > 10 ? '2mm' : '3mm');
+    section.style.setProperty('--seat-font', `${columnCount >= 4 || rowCount > 10 ? 9 : 11}px`);
+    if (rowCount > 10) {
+        section.style.setProperty('--seat-label-padding', '0.5mm');
+        section.style.setProperty('--seat-padding', '0.5mm');
+        section.style.setProperty('--seat-content-gap', '0.5mm');
+        section.style.setProperty('--seat-number-font', '6pt');
+    }
+    section.style.setProperty('--seat-title-font', printTitle.length > 80 ? '16px' : '20px');
+
+    const header = createSeatingElement('header', 'seating-sheet-header');
+    header.append(
+        createSeatingElement('p', 'seating-sheet-label', 'SINIF OTURMA PLANI'),
+        createSeatingElement('h1', 'seating-sheet-title', printTitle)
+    );
+    const metadata = createSeatingElement('div', 'seating-sheet-meta');
+    const studentCount = Object.values(plan.assignments).reduce((count, desk) => count + Number(Boolean(desk.left)) + Number(Boolean(desk.right)), 0);
+    for (const [label, value] of [['Sınıf', plan.className || currentScheduleClass], ['Öğrenci', studentCount], ['Sıra', plan.deskCount]]) {
+        const item = createSeatingElement('div', 'seating-sheet-meta-item');
+        item.append(createSeatingElement('span', '', label), createSeatingElement('strong', '', String(value)));
+        metadata.appendChild(item);
+    }
+    header.appendChild(metadata);
+
+    const front = createSeatingElement('div', 'seating-sheet-front');
+    front.append(
+        createSeatingElement('div', 'seating-sheet-board', 'TAHTA / SINIFIN ÖNÜ'),
+        createSeatingElement('div', 'seating-sheet-teacher', 'ÖĞRETMEN MASASI')
+    );
+
+    const desks = createSeatingElement('div', 'seating-sheet-desks');
+    for (let number = 1; number <= plan.deskCount; number += 1) {
+        const desk = createSeatingElement('div', 'seating-sheet-desk');
+        desk.dataset.desk = String(number);
+        desk.appendChild(createSeatingElement('div', 'seating-sheet-desk-label', `SIRA ${String(number).padStart(2, '0')}`));
+        const seats = createSeatingElement('div', 'seating-sheet-seats');
+        for (const position of ['left', 'right']) {
+            const student = plan.assignments[number][position];
+            const seat = createSeatingElement('div', 'seating-sheet-seat');
+            seat.dataset.position = position;
+            if (student) {
+                seat.append(
+                    createSeatingElement('span', 'seating-sheet-student-no', `No: ${student.student_no}`),
+                    createSeatingElement('span', 'seating-sheet-student-name', `${student.first_name} ${student.last_name}`)
+                );
+            } else {
+                seat.appendChild(createSeatingElement('span', 'seating-sheet-empty', 'BOŞ'));
+            }
+            seats.appendChild(seat);
+        }
+        desk.appendChild(seats);
+        desks.appendChild(desk);
+    }
+    const footer = createSeatingElement('footer', 'seating-sheet-footer');
+    footer.append(
+        createSeatingElement('span', '', 'Yön: tahta üstte • Her sıra iki kişiliktir'),
+        createSeatingElement('span', '', '1 / 1')
+    );
+    section.append(header, front, desks, footer);
+    return section;
 }
 
-function resolveSeatFontPx(columnCount, rowCount) {
-    const base = columnCount === 2 ? 11 : columnCount === 3 ? 9.8 : columnCount === 4 ? 8.8 : 7.8;
-    if (rowCount >= 7) return Math.max(7.2, base - 0.8);
-    if (rowCount === 6) return Math.max(7.4, base - 0.5);
-    return base;
+function fitSeatingPrintContent(section) {
+    for (const name of section.querySelectorAll('.seating-sheet-student-name')) {
+        const seat = name.parentElement;
+        let fontSize = parseFloat(getComputedStyle(name).fontSize);
+        const overflows = () => {
+            const bounds = seat.getBoundingClientRect();
+            return [...seat.children].some(child => {
+                const box = child.getBoundingClientRect();
+                return box.top < bounds.top || box.bottom > bounds.bottom || box.left < bounds.left || box.right > bounds.right;
+            });
+        };
+        while (fontSize > 8 && overflows()) {
+            fontSize -= 0.5;
+            name.style.fontSize = `${fontSize}px`;
+        }
+    }
 }
 
 function showSeatingMessage(message, type) {
