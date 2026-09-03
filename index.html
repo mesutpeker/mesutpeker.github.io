@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f9fc">
+  <meta name="theme-color" content="#fbfcf9">
   <meta name="description" content="Mehmet Mesut Peker eğitim ve yönetim araçları.">
   <link rel="canonical" href="https://mesutpeker.online/">
   <meta property="og:type" content="website">
@@ -21,19 +21,19 @@
   <meta name="twitter:image" content="https://mesutpeker.online/og.png">
   <meta name="twitter:image:alt" content="Eğitim Araçları — Mehmet Mesut Peker">
   <title>Eğitim Araçları | Mehmet Mesut Peker</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%232563eb%22/><text x=%2250%22 y=%2266%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2247%22 font-weight=%22700%22 fill=%22white%22>MP</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%230f8f83%22/><text x=%2250%22 y=%2266%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2247%22 font-weight=%22700%22 fill=%22white%22>MP</text></svg>">
   <style>
     :root {
       color-scheme: light;
-      --page: #f7f9fc;
+      --page: #fbfcf9;
       --surface: #ffffff;
-      --text: #172033;
-      --muted: #697386;
-      --border: #e3e8ef;
-      --primary: #2563eb;
-      --primary-soft: #eff6ff;
-      --shadow: 0 1px 2px rgba(16, 24, 40, .03), 0 8px 24px rgba(16, 24, 40, .05);
-      --shadow-hover: 0 2px 4px rgba(16, 24, 40, .04), 0 16px 36px rgba(16, 24, 40, .09);
+      --text: #111b21;
+      --muted: #687279;
+      --border: #dfe4e1;
+      --teal: #0f8f83;
+      --content-width: 880px;
+      --shadow: 0 2px 4px rgba(25, 43, 37, .025), 0 10px 26px rgba(25, 43, 37, .045);
+      --shadow-hover: 0 4px 8px rgba(25, 43, 37, .045), 0 18px 34px rgba(25, 43, 37, .075);
     }
 
     * {
@@ -49,8 +49,6 @@
       min-width: 320px;
       min-height: 100vh;
       min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
       color: var(--text);
       background: var(--page);
       font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -65,14 +63,14 @@
       position: fixed;
       top: 12px;
       left: 12px;
-      z-index: 10;
+      z-index: 20;
       padding: 10px 14px;
       border-radius: 9px;
       color: #fff;
-      background: var(--primary);
-      font-size: 14px;
+      background: var(--teal);
+      font-size: .875rem;
       font-weight: 700;
-      transform: translateY(-160%);
+      transform: translateY(-170%);
     }
 
     .skip-link:focus {
@@ -80,83 +78,131 @@
     }
 
     .site-header {
-      border-bottom: 1px solid var(--border);
-      background: rgba(255, 255, 255, .92);
+      position: relative;
+      z-index: 2;
+      height: 60px;
+      border-bottom: 1px solid #e6e9e6;
+      background: rgba(253, 254, 251, .96);
     }
 
     .header-inner,
     .main-inner {
-      width: min(1040px, calc(100% - 40px));
+      width: min(var(--content-width), calc(100% - 32px));
       margin-inline: auto;
     }
 
     .header-inner {
-      min-height: 68px;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 24px;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 11px;
+      gap: 10px;
       color: inherit;
       text-decoration: none;
     }
 
     .brand-mark {
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       display: grid;
       place-items: center;
-      border-radius: 11px;
+      border-radius: 9px;
       color: #fff;
-      background: var(--primary);
-      font-size: 12px;
+      background: var(--teal);
+      box-shadow: 0 5px 12px rgba(15, 143, 131, .24);
+      font-size: .625rem;
       font-weight: 800;
       letter-spacing: -.02em;
     }
 
     .brand-name {
-      font-size: 15px;
+      font-size: .8125rem;
       font-weight: 750;
       letter-spacing: -.015em;
     }
 
     .header-label {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 25px;
+      padding: 4px 11px;
+      border: 1px solid #e4e8e5;
+      border-radius: 999px;
+      color: #667078;
+      background: rgba(255, 255, 255, .78);
+      box-shadow: 0 1px 2px rgba(25, 43, 37, .025);
+      font-size: .75rem;
+      font-weight: 500;
+    }
+
+    .header-label::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 3px rgba(15, 143, 131, .08);
     }
 
     main {
-      flex: 1;
+      position: relative;
+      min-height: calc(100vh - 60px);
+      min-height: calc(100dvh - 60px);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 88% 9%, rgba(203, 245, 236, .52), transparent 26%),
+        radial-gradient(circle at 10% 42%, rgba(255, 235, 211, .5), transparent 24%),
+        var(--page);
+    }
+
+    main::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(77, 105, 95, .13) 1px, transparent 1.15px);
+      background-size: 20px 20px;
+      background-position: center 9px;
+      -webkit-mask-image: linear-gradient(to bottom, #000 0, rgba(0, 0, 0, .72) 35%, transparent 76%);
+      mask-image: linear-gradient(to bottom, #000 0, rgba(0, 0, 0, .72) 35%, transparent 76%);
+      opacity: .42;
     }
 
     .main-inner {
-      padding: 64px 0 36px;
+      position: relative;
+      z-index: 1;
+      padding: 66px 0 64px;
     }
 
     .intro {
-      max-width: 620px;
-      margin-bottom: 30px;
+      margin-bottom: 36px;
     }
 
     .intro h1 {
       margin: 0;
-      font-size: clamp(30px, 4vw, 44px);
+      font-size: clamp(2.25rem, 3.25vw, 3rem);
       line-height: 1.08;
-      letter-spacing: -.04em;
-      font-weight: 800;
+      letter-spacing: -.055em;
+      font-weight: 825;
+    }
+
+    .title-accent {
+      color: var(--teal);
+      background: linear-gradient(transparent 62%, rgba(81, 206, 185, .22) 62%, rgba(81, 206, 185, .22) 91%, transparent 91%);
     }
 
     .intro p {
-      margin: 12px 0 0;
+      margin: 11px 0 0;
       color: var(--muted);
-      font-size: 16px;
-      line-height: 1.55;
+      font-size: 1rem;
+      line-height: 1.45;
     }
 
     .app-grid {
@@ -166,40 +212,55 @@
     }
 
     .app-card {
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
+      --accent: #0f8f83;
+      --accent-soft: #e6f7f3;
+      position: relative;
       min-height: 190px;
       grid-column: span 2;
       display: flex;
       flex-direction: column;
-      padding: 22px;
+      padding: 21px 21px 20px;
+      overflow: hidden;
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: 15px;
       color: inherit;
-      background: var(--surface);
+      background: rgba(255, 255, 255, .96);
       box-shadow: var(--shadow);
       text-decoration: none;
+      isolation: isolate;
       transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
     }
 
+    .app-card::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      right: 0;
+      width: 106px;
+      height: 104px;
+      border-bottom-left-radius: 92px;
+      background: var(--accent-soft);
+    }
+
     .app-card:nth-child(2) {
-      --accent: #7c3aed;
-      --accent-soft: #f5f3ff;
+      --accent: #5b43df;
+      --accent-soft: #efefff;
     }
 
     .app-card:nth-child(3) {
-      --accent: #0f766e;
-      --accent-soft: #f0fdfa;
+      --accent: #c65d08;
+      --accent-soft: #fff6dd;
     }
 
     .app-card:nth-child(4) {
-      --accent: #c2410c;
-      --accent-soft: #fff7ed;
+      --accent: #c80d62;
+      --accent-soft: #fdeef5;
     }
 
     .app-card:nth-child(5) {
-      --accent: #be185d;
-      --accent-soft: #fdf2f8;
+      --accent: #087dab;
+      --accent-soft: #eaf6ff;
     }
 
     .app-card:nth-child(4),
@@ -208,13 +269,13 @@
     }
 
     .app-card:hover {
-      border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+      border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
       box-shadow: var(--shadow-hover);
       transform: translateY(-3px);
     }
 
     .app-card:focus-visible {
-      outline: 3px solid color-mix(in srgb, var(--accent) 28%, transparent);
+      outline: 3px solid color-mix(in srgb, var(--accent) 30%, transparent);
       outline-offset: 3px;
     }
 
@@ -223,7 +284,6 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 28px;
     }
 
     .app-icon {
@@ -232,9 +292,10 @@
       display: grid;
       place-items: center;
       flex: none;
-      border-radius: 13px;
-      color: var(--accent);
-      background: var(--accent-soft);
+      border-radius: 11px;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 6px 13px color-mix(in srgb, var(--accent) 28%, transparent);
     }
 
     .app-icon svg {
@@ -243,111 +304,175 @@
     }
 
     .app-icon strong {
-      font-size: 12px;
+      font-size: .75rem;
       letter-spacing: -.03em;
     }
 
     .card-arrow {
-      color: #98a2b3;
-      transition: color .18s ease, transform .18s ease;
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      flex: none;
+      border: 1px solid rgba(221, 226, 223, .88);
+      border-radius: 50%;
+      color: #98a29e;
+      background: rgba(255, 255, 255, .82);
+      transition: color .18s ease, background .18s ease, transform .18s ease;
     }
 
     .card-arrow svg {
-      width: 20px;
-      height: 20px;
+      width: 14px;
+      height: 14px;
     }
 
     .app-card:hover .card-arrow {
       color: var(--accent);
-      transform: translateX(3px);
+      background: #fff;
+      transform: translate(2px, -2px);
+    }
+
+    .card-copy {
+      margin-top: auto;
     }
 
     .app-card h2 {
-      margin: auto 0 6px;
-      font-size: 18px;
-      line-height: 1.25;
-      letter-spacing: -.025em;
-      font-weight: 750;
+      margin: 0 0 6px;
+      font-size: 1.0625rem;
+      line-height: 1.2;
+      letter-spacing: -.03em;
+      font-weight: 760;
     }
 
     .app-card p {
       margin: 0;
       color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
+      font-size: .8125rem;
+      line-height: 1.42;
     }
 
     .site-footer {
-      margin-top: 34px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 12px;
+      min-height: 38px;
+      margin-top: 45px;
+      padding-top: 18px;
+      border-top: 1px solid #e3e7e4;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      color: #69737a;
+      font-size: .6875rem;
+      line-height: 1.4;
+    }
+
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-mark {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 5px;
+      color: #fff;
+      background: var(--teal);
+      font-size: .375rem;
+      font-weight: 800;
     }
 
     @media (max-width: 760px) {
-      .header-inner,
       .main-inner {
-        width: min(100% - 28px, 560px);
-      }
-
-      .header-inner {
-        min-height: 62px;
-      }
-
-      .main-inner {
-        padding-top: 42px;
+        padding-top: 46px;
       }
 
       .intro {
-        margin-bottom: 24px;
+        margin-bottom: 28px;
       }
 
       .intro h1 {
-        font-size: clamp(28px, 9vw, 38px);
-      }
-
-      .intro p {
-        margin-top: 9px;
-        font-size: 15px;
+        font-size: clamp(2.1rem, 9vw, 2.65rem);
       }
 
       .app-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 13px;
       }
 
       .app-card,
       .app-card:nth-child(4),
       .app-card:nth-child(5) {
-        min-height: 142px;
-        grid-column: auto;
-        padding: 18px;
-        border-radius: 15px;
+        min-height: 174px;
+        grid-column: span 1;
       }
 
-      .card-top {
-        margin-bottom: 19px;
+      .app-card:nth-child(5) {
+        grid-column: span 2;
       }
 
-      .app-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
+      .app-card h2 {
+        font-size: 1rem;
       }
     }
 
-    @media (max-width: 430px) {
-      .brand-name {
-        font-size: 14px;
+    @media (max-width: 540px) {
+      .site-header {
+        height: 58px;
       }
 
       .header-label {
-        display: none;
+        font-size: .6875rem;
+      }
+
+      main {
+        min-height: calc(100vh - 58px);
+        min-height: calc(100dvh - 58px);
       }
 
       .main-inner {
-        padding-top: 34px;
+        padding-top: 38px;
+      }
+
+      .intro h1 {
+        font-size: clamp(2rem, 10vw, 2.4rem);
+      }
+
+      .intro p {
+        font-size: .9375rem;
+      }
+
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .app-card,
+      .app-card:nth-child(4),
+      .app-card:nth-child(5) {
+        min-height: 162px;
+        grid-column: auto;
+      }
+
+      .site-footer {
+        margin-top: 34px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .header-label {
+        width: 26px;
+        padding: 0;
+        justify-content: center;
+        font-size: 0;
+      }
+
+      .brand-name {
+        font-size: .75rem;
+      }
+
+      .app-card {
+        padding: 19px;
       }
     }
 
@@ -377,7 +502,7 @@
   <main>
     <div class="main-inner">
       <section class="intro" aria-labelledby="page-title">
-        <h1 id="page-title">Ne yapmak istersiniz?</h1>
+        <h1 id="page-title">Ne yapmak ister<span class="title-accent">siniz?</span></h1>
         <p>Devam etmek için bir araç seçin.</p>
       </section>
 
@@ -394,34 +519,38 @@
             </span>
             <span class="card-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="13 6 19 12 13 18"></polyline>
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
               </svg>
             </span>
           </div>
-          <h2>Çizelge Oluştur</h2>
-          <p>Ödev çizelgeleri, isteğinize göre çizelgeler ve oturma planı oluşturun.</p>
+          <div class="card-copy">
+            <h2>Çizelge Oluştur</h2>
+            <p>Ödev çizelgeleri, isteğinize göre çizelgeler ve oturma planı oluşturun.</p>
+          </div>
         </a>
 
         <a class="app-card" href="/rapor/">
           <div class="card-top">
             <span class="app-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </span>
             <span class="card-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="13 6 19 12 13 18"></polyline>
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
               </svg>
             </span>
           </div>
-          <h2>ŞÖK ( Şube Öğretmenler Kurulu ) Tutanağı</h2>
-          <p>Kurul tutanağını hazırlayın.</p>
+          <div class="card-copy">
+            <h2>ŞÖK ( Şube Öğretmenler Kurulu ) Tutanağı</h2>
+            <p>Kurul tutanağını hazırlayın.</p>
+          </div>
         </a>
 
         <a class="app-card" href="/zumre/">
@@ -434,13 +563,15 @@
             </span>
             <span class="card-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="13 6 19 12 13 18"></polyline>
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
               </svg>
             </span>
           </div>
-          <h2>Zümre Tutanakları</h2>
-          <p>Zümre tutanağını hazırlayın.</p>
+          <div class="card-copy">
+            <h2>Zümre Tutanakları</h2>
+            <p>Zümre tutanağını hazırlayın.</p>
+          </div>
         </a>
 
         <a class="app-card" href="/kelebek/">
@@ -454,13 +585,15 @@
             </span>
             <span class="card-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="13 6 19 12 13 18"></polyline>
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
               </svg>
             </span>
           </div>
-          <h2>Kelebek Dağıtım</h2>
-          <p>Sınav oturma planı oluşturun.</p>
+          <div class="card-copy">
+            <h2>Kelebek Dağıtım</h2>
+            <p>Sınav oturma planı oluşturun.</p>
+          </div>
         </a>
 
         <a class="app-card" href="/performans/">
@@ -468,17 +601,22 @@
             <span class="app-icon" aria-hidden="true"><strong>100</strong></span>
             <span class="card-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="13 6 19 12 13 18"></polyline>
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
               </svg>
             </span>
           </div>
-          <h2>Performans Değerlendirme</h2>
-          <p>Öğrencileri ölçütlere göre puanlayın.</p>
+          <div class="card-copy">
+            <h2>Performans Değerlendirme</h2>
+            <p>Öğrencileri ölçütlere göre puanlayın.</p>
+          </div>
         </a>
       </nav>
 
-      <footer class="site-footer">© 2026 Mehmet Mesut Peker</footer>
+      <footer class="site-footer">
+        <span class="footer-brand"><span class="footer-mark" aria-hidden="true">MP</span>Mehmet Mesut Peker</span>
+        <span>© 2026 Mehmet Mesut Peker</span>
+      </footer>
     </div>
   </main>
 </body>
