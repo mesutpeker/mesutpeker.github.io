@@ -7,6 +7,9 @@
     html,
     body {
         width: 100%;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
@@ -21,14 +24,30 @@
     #homeworkSchedulePrint,
     #customSchedulePrint,
     #seating-plan-print-section {
-        position: absolute !important;
-        inset: 0 auto auto 0;
+        position: static !important;
         display: block !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
         box-sizing: border-box !important;
+    }
+
+    #homeworkSchedulePrint:not(.active-print),
+    #customSchedulePrint:not(.active-print) {
+        display: none !important;
+    }
+
+    #homeworkSchedulePrint,
+    #customSchedulePrint,
+    #homeworkSchedulePrint > div,
+    #customSchedulePrint > div {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
     }
 
     #homeworkSchedulePrint *,
@@ -60,12 +79,13 @@
         table-layout: fixed !important;
         font-size: 8px !important;
         empty-cells: show !important;
-        page-break-inside: avoid !important;
+        page-break-inside: auto !important;
     }
 
     #homeworkSchedulePrint thead,
     #customSchedulePrint thead {
         display: table-header-group !important;
+        break-inside: avoid !important;
     }
 
     #homeworkSchedulePrint tbody,
@@ -76,7 +96,7 @@
     #homeworkSchedulePrint tr,
     #customSchedulePrint tr {
         display: table-row !important;
-        height: 25px !important;
+        height: var(--schedule-row-height, 25px) !important;
         page-break-inside: avoid !important;
     }
 
@@ -85,7 +105,11 @@
     #customSchedulePrint th,
     #customSchedulePrint td {
         display: table-cell !important;
-        height: 25px !important;
+        position: static !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        min-height: 0 !important;
+        height: var(--schedule-row-height, 25px) !important;
         padding: 2px !important;
         border: 1px solid #000 !important;
         overflow: hidden !important;
@@ -99,11 +123,15 @@
         font-weight: 800 !important;
     }
 
+    #homeworkSchedulePrint th:first-child {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+
     #homeworkSchedulePrint th:first-child,
     #homeworkSchedulePrint td:first-child {
         width: 4% !important;
         text-align: center !important;
-        white-space: nowrap !important;
         font-weight: 700 !important;
     }
 
@@ -146,7 +174,12 @@
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        height: 100% !important;
+        /* A percentage height in a rotated table header can resolve against
+           the full printed table and move the text below the student rows. */
+        height: 105px !important;
+        width: max-content !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
         padding: 2px !important;
         writing-mode: vertical-rl !important;
         text-orientation: mixed !important;
@@ -161,28 +194,29 @@
         display: block !important;
     }
 
-    #homeworkSchedulePrint.cols-6-10 td,
+    #homeworkSchedulePrint .cols-6-10 td,
     #customSchedulePrint.cols-6-10 td,
-    #homeworkSchedulePrint.rows-16-30 td,
+    #homeworkSchedulePrint .rows-16-30 td,
     #customSchedulePrint.rows-16-30 td {
         font-size: 8px !important;
     }
 
-    #homeworkSchedulePrint.cols-11-15 td,
+    #homeworkSchedulePrint .cols-11-15 td,
     #customSchedulePrint.cols-11-15 td,
-    #homeworkSchedulePrint.rows-31-plus td,
+    #homeworkSchedulePrint .rows-31-plus td,
     #customSchedulePrint.rows-31-plus td {
         font-size: 7px !important;
     }
 
-    #homeworkSchedulePrint.cols-16-20 td,
+    #homeworkSchedulePrint .cols-16-20 td,
     #customSchedulePrint.cols-16-20 td {
         padding: 1px !important;
         font-size: 6.5px !important;
     }
 
-    #homeworkSchedulePrint > div {
-        page-break-inside: avoid !important;
+    #homeworkSchedulePrint tbody td:first-child,
+    #homeworkSchedulePrint tbody td:nth-child(2) {
+        font-size: 9px !important;
     }
 
     #homeworkSchedulePrint > div:not(:last-child) {

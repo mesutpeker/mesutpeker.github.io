@@ -79,15 +79,16 @@ function createPreviewNote(className, iconClass, text) {
 function runPrintJob(printSection, { removeAfter = false } = {}) {
     if (!printSection) return;
     printSection.style.display = 'block';
+    printSection.classList.add('active-print');
     let cleaned = false;
     const cleanup = () => {
         if (cleaned) return;
         cleaned = true;
+        printSection.classList.remove('active-print');
         if (removeAfter) printSection.remove();
         else printSection.style.display = 'none';
     };
     window.addEventListener('afterprint', cleanup, { once: true });
-    setTimeout(cleanup, 30000);
     requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
 }
 
@@ -122,8 +123,8 @@ function generateHomeworkSchedule(startDate, endDate, forPrint = false) {
         return;
     }
 
-    // 20 haftadan fazlaysa iki sayfa halinde böl
-    if (scheduleType === 'weekly' && periods.length > 20) {
+    // Her sayfada en fazla 20 hafta veya gün göster.
+    if (periods.length > 20) {
         return generateMultiPageSchedule(students, periods, scheduleType, forPrint);
     }
 
@@ -139,7 +140,7 @@ function generateHomeworkSchedule(startDate, endDate, forPrint = false) {
         const previewNote = createPreviewNote(
             'alert alert-info mb-2',
             'bi bi-info-circle',
-            'Yazdırıldığında tablo A4 yatay sayfaya otomatik sığdırılacaktır. Buradaki görünüm sadece önizleme amaçlıdır.'
+            'Çizelge A4 yatay olarak yazdırılır. Uzun öğrenci listeleri, sütun başlıkları tekrarlanarak sonraki sayfada devam eder.'
         );
         previewArea.appendChild(previewNote);
         previewArea.appendChild(scheduleTable.cloneNode(true));
@@ -166,78 +167,41 @@ function generateHomeworkSchedule(startDate, endDate, forPrint = false) {
     return printSection; // Dönüş değeri ekledik
 }
 
-// Çoklu sayfa ödev çizelgesi oluşturma (20 haftadan fazla için)
+// Uzun tarih aralıklarını okunabilir genişlikte tablolara böl.
 function generateMultiPageSchedule(students, periods, scheduleType, forPrint = false) {
-    console.log(`Çoklu sayfa çizelgesi oluşturuluyor: ${periods.length} hafta`);
+    const pageCount = Math.ceil(periods.length / 20);
+    const periodsPerPage = Math.ceil(periods.length / pageCount);
+    const printSection = document.createElement('div');
+    printSection.id = 'homeworkSchedulePrint';
+    const previewArea = document.getElementById('schedulePreview');
 
-    // Hafta sayısını ikiye böl
-    const totalWeeks = periods.length;
-    const firstPageWeeks = Math.ceil(totalWeeks / 2);
-    const secondPageWeeks = totalWeeks - firstPageWeeks;
-
-    console.log(`1. sayfa: ${firstPageWeeks} hafta, 2. sayfa: ${secondPageWeeks} hafta`);
-
-    // İlk sayfa için haftalar
-    const firstPagePeriods = periods.slice(0, firstPageWeeks);
-    // İkinci sayfa için haftalar
-    const secondPagePeriods = periods.slice(firstPageWeeks);
-
-    // İlk sayfa tablosunu oluştur (hafta 1'den başlar)
-    const firstPageTable = createScheduleTable(students, firstPagePeriods, scheduleType, 1);
-    // İkinci sayfa tablosunu oluştur (ilk sayfadaki hafta sayısından sonra başlar)
-    const secondPageTable = createScheduleTable(students, secondPagePeriods, scheduleType, firstPageWeeks + 1);
-
-    // Eğer yazdırma için değilse, önizleme alanını güncelle
     if (!forPrint) {
-        const previewArea = document.getElementById('schedulePreview');
-        previewArea.replaceChildren();
-
-        // Önizleme için uyarı notu
-        const previewNote = createPreviewNote(
-            'alert alert-warning mb-2',
-            'bi bi-exclamation-triangle',
-            `${totalWeeks} hafta seçildi. Çizelge 2 sayfa halinde yazdırılacak: 1. sayfa ${firstPageWeeks} hafta, 2. sayfa ${secondPageWeeks} hafta.`
-        );
-        previewArea.appendChild(previewNote);
-
-        // İlk sayfa önizlemesi
-        const firstPageTitle = document.createElement('h6');
-        firstPageTitle.textContent = '1. Sayfa';
-        firstPageTitle.className = 'mt-3 mb-2';
-        previewArea.appendChild(firstPageTitle);
-        previewArea.appendChild(firstPageTable.cloneNode(true));
-
-        // İkinci sayfa önizlemesi
-        const secondPageTitle = document.createElement('h6');
-        secondPageTitle.textContent = '2. Sayfa';
-        secondPageTitle.className = 'mt-3 mb-2';
-        previewArea.appendChild(secondPageTitle);
-        previewArea.appendChild(secondPageTable.cloneNode(true));
+        previewArea.replaceChildren(createPreviewNote(
+            'alert alert-info mb-2',
+            'bi bi-info-circle',
+            `Çizelge ${pageCount} bölüm halinde yazdırılacak. Uzun öğrenci listeleri sonraki sayfada devam eder.`
+        ));
     }
 
-    // Yazdırma için çoklu sayfa versiyonu oluştur
-    const printSection = createMultiPagePrintableVersion(
-        currentScheduleClass,
-        firstPageTable.cloneNode(true),
-        secondPageTable.cloneNode(true),
-        firstPageWeeks,
-        secondPageWeeks
-    );
+    for (let offset = 0; offset < periods.length; offset += periodsPerPage) {
+        const pagePeriods = periods.slice(offset, offset + periodsPerPage);
+        const table = createScheduleTable(students, pagePeriods, scheduleType, offset + 1);
+        const unit = scheduleType === 'weekly' ? 'Hafta' : 'Gün';
+        const sectionTitle = `${offset + 1}-${offset + pagePeriods.length}. ${unit}`;
 
-    // Var olan yazdırma alanını temizle
-    const oldPrintArea = document.getElementById('homeworkSchedulePrint');
-    if (oldPrintArea) {
-        oldPrintArea.remove();
+        if (!forPrint) {
+            const title = document.createElement('h6');
+            title.className = 'mt-3 mb-2';
+            title.textContent = sectionTitle;
+            previewArea.append(title, table.cloneNode(true));
+        }
+        printSection.appendChild(createSchedulePrintPage(currentScheduleClass, table, sectionTitle));
     }
 
-    // Yazdırma alanını document.body'ye ekle
+    document.getElementById('homeworkSchedulePrint')?.remove();
     printSection.style.display = forPrint ? 'block' : 'none';
     document.body.appendChild(printSection);
-
-    // Yazdır butonunu etkinleştir
     document.getElementById('printScheduleBtn').disabled = false;
-    console.log('Çoklu sayfa çizelgesi oluşturuldu ve hazırlandı, forPrint:', forPrint);
-
     return printSection;
 }
 
@@ -392,29 +356,16 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
     
-    // Sütun genişliği hesaplaması - günlük modda daha dar sütunlar
-    let studentColumnWidth, periodColumnWidth;
-    
-    if (scheduleType === 'daily' && periods.length > 10) {
-        // Çok fazla gün varsa öğrenci sütununu daha dar yap
-        studentColumnWidth = 20;
-        periodColumnWidth = (80 / periods.length).toFixed(2);
-    } else if (periods.length > 15) {
-        // Çok fazla dönem varsa öğrenci sütununu daha dar yap
-        studentColumnWidth = 15;
-        periodColumnWidth = (85 / periods.length).toFixed(2);
-    } else {
-        // Normal durumda
-        studentColumnWidth = 25;
-        periodColumnWidth = (75 / periods.length).toFixed(2);
-    }
-    
+    const studentNoColumnWidth = 4;
+    const studentNameColumnWidth = 26;
+    const periodColumnWidth = 70 / periods.length;
+
     // Öğrenci numarası sütunu
     const thStudentNo = document.createElement('th');
     thStudentNo.textContent = 'ÖĞRENCİ NO';
-    thStudentNo.style.width = `${studentColumnWidth * 0.35}%`; // Öğrenci no için daha dar
-    thStudentNo.style.minWidth = `${studentColumnWidth * 0.35}%`;
-    thStudentNo.style.maxWidth = `${studentColumnWidth * 0.35}%`;
+    thStudentNo.style.width = `${studentNoColumnWidth}%`; // Öğrenci no için daha dar
+    thStudentNo.style.minWidth = `${studentNoColumnWidth}%`;
+    thStudentNo.style.maxWidth = `${studentNoColumnWidth}%`;
     thStudentNo.style.textAlign = 'center';
     thStudentNo.style.padding = '2px 5px';
     thStudentNo.style.verticalAlign = 'bottom';
@@ -425,18 +376,15 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
     // Öğrenci adı sütunu
     const thStudent = document.createElement('th');
     thStudent.textContent = 'ÖĞRENCİ ADI';
-    thStudent.style.width = `${studentColumnWidth * 0.65}%`; // Öğrenci adı için daha geniş
-    thStudent.style.minWidth = `${studentColumnWidth * 0.65}%`;
-    thStudent.style.maxWidth = `${studentColumnWidth * 0.65}%`;
+    thStudent.style.width = `${studentNameColumnWidth}%`; // Öğrenci adı için daha geniş
+    thStudent.style.minWidth = `${studentNameColumnWidth}%`;
+    thStudent.style.maxWidth = `${studentNameColumnWidth}%`;
     thStudent.style.textAlign = 'left';
     thStudent.style.padding = '2px 5px';
     thStudent.style.verticalAlign = 'bottom';
     thStudent.style.fontWeight = 'bold';
     thStudent.style.border = '2px solid black';
     headerRow.appendChild(thStudent);
-    
-    // Hafta sütunları için kalan genişliği hesapla
-    const weekColumnWidth = (75 / periods.length).toFixed(2); // 75% kalan genişlik
     
     periods.forEach((period, index) => {
         const th = document.createElement('th');
@@ -488,9 +436,9 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
         // Öğrenci numarası sütunu
         const tdStudentNo = document.createElement('td');
         tdStudentNo.textContent = student.student_no;
-        tdStudentNo.style.width = `${studentColumnWidth * 0.35}%`;
-        tdStudentNo.style.minWidth = `${studentColumnWidth * 0.35}%`;
-        tdStudentNo.style.maxWidth = `${studentColumnWidth * 0.35}%`;
+        tdStudentNo.style.width = `${studentNoColumnWidth}%`;
+        tdStudentNo.style.minWidth = `${studentNoColumnWidth}%`;
+        tdStudentNo.style.maxWidth = `${studentNoColumnWidth}%`;
         tdStudentNo.style.textAlign = 'center';
         tdStudentNo.style.paddingLeft = '2px';
         tdStudentNo.style.paddingRight = '2px';
@@ -514,9 +462,9 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
         // Öğrenci adı sütunu
         const tdName = document.createElement('td');
         tdName.textContent = `${student.first_name} ${student.last_name}`;
-        tdName.style.width = `${studentColumnWidth * 0.65}%`;
-        tdName.style.minWidth = `${studentColumnWidth * 0.65}%`;
-        tdName.style.maxWidth = `${studentColumnWidth * 0.65}%`;
+        tdName.style.width = `${studentNameColumnWidth}%`;
+        tdName.style.minWidth = `${studentNameColumnWidth}%`;
+        tdName.style.maxWidth = `${studentNameColumnWidth}%`;
         tdName.style.textAlign = 'left';
         tdName.style.paddingLeft = '5px';
         tdName.style.whiteSpace = 'normal';
@@ -564,282 +512,30 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
     return table;
 }
 
-// Yazdırılabilir versiyonu oluşturma
-function createPrintableVersion(className, table) {
-    // Print wrapper
-    const printWrapper = document.createElement('div');
-    printWrapper.id = 'homeworkSchedulePrint'; // Print div'i için doğrudan ID atıyoruz
-    printWrapper.style.width = '100%';
-    printWrapper.style.maxWidth = '100%'; // A4 genişliği (yatay)
-    printWrapper.style.minHeight = 'auto'; // A4 yüksekliği (yatay) yerine auto
-    printWrapper.style.margin = '0'; // Sayfayı ortala
-    printWrapper.style.pageBreakInside = 'avoid';
-    printWrapper.style.pageBreakAfter = 'avoid';
-    printWrapper.style.overflow = 'visible';
-    printWrapper.style.position = 'relative';
-    printWrapper.style.backgroundColor = 'white';
-    printWrapper.style.display = 'block';
-    printWrapper.style.boxSizing = 'border-box';
-    
-    // Satır ve sütun sayısına göre CSS sınıfları ekle
-    // Sütun (hafta) sayısına göre sınıf ekle
-    const columnCount = table.querySelectorAll('th').length - 1; // Öğrenci adı sütununu çıkar
-    if (columnCount <= 5) {
-        printWrapper.classList.add('cols-1-5');
-    } else if (columnCount <= 10) {
-        printWrapper.classList.add('cols-6-10');
-    } else if (columnCount <= 15) {
-        printWrapper.classList.add('cols-11-15');
-    } else {
-        printWrapper.classList.add('cols-16-20');
-    }
-    
-    // Satır (öğrenci) sayısına göre sınıf ekle
+// Tek ve çok bölümlü baskılarda aynı tablo düzenini kullan.
+function createSchedulePrintPage(className, table, sectionTitle = '') {
+    const page = document.createElement('div');
+    page.className = 'schedule-print-page';
+    const columnCount = table.querySelectorAll('thead th').length - 2;
     const rowCount = table.querySelectorAll('tbody tr').length;
-    if (rowCount <= 15) {
-        printWrapper.classList.add('rows-1-15');
-    } else if (rowCount <= 30) {
-        printWrapper.classList.add('rows-16-30');
-    } else {
-        printWrapper.classList.add('rows-31-plus');
-    }
-    
-    // İçerik konteyneri
-    const container = document.createElement('div');
-    container.style.padding = '0.2cm';
-    container.style.overflow = 'visible';
-    container.style.pageBreakInside = 'avoid';
-    container.style.pageBreakAfter = 'avoid';
-    container.style.height = 'auto'; // A4 yüksekliğine sabitlenmedi
-    container.style.width = '100%'; // Genişliği %100 yap
-    container.style.boxSizing = 'border-box';
-    
-    // Başlık
+    // Leave room for the title and date headers on A4 landscape. Longer
+    // lists keep usable row heights and continue with repeated headers.
+    page.style.setProperty('--schedule-row-height', `${Math.max(18, Math.min(25, Math.floor(600 / Math.max(1, rowCount))))}px`);
+    page.classList.add(columnCount <= 5 ? 'cols-1-5' : columnCount <= 10 ? 'cols-6-10' : columnCount <= 15 ? 'cols-11-15' : 'cols-16-20');
+    page.classList.add(rowCount <= 15 ? 'rows-1-15' : rowCount <= 30 ? 'rows-16-30' : 'rows-31-plus');
+
     const title = document.createElement('h3');
-    // Özelleştirilmiş başlığı al, yoksa varsayılan başlığı kullan
-    const customTitle = document.getElementById('scheduleTitle').value.trim();
-    const titleText = customTitle || 'Ödev Çizelgesi';
-    title.textContent = `${className} - ${titleText}`;
-    title.style.textAlign = 'center';
-    title.style.margin = '0 0 0.1cm 0';
-    title.style.padding = '0';
-    title.style.fontSize = '12px';
-    title.style.fontWeight = 'bold';
-    title.style.display = 'block';
-    
-    container.appendChild(title);
-    
-    // Tablo genişliği ayarlama
-    table.className = 'print-table'; // CSS sınıfı ekle
-    table.style.width = '100%';
-    table.style.height = 'auto';
-    table.style.fontSize = columnCount > 10 ? '7px' : '8px';
-    table.style.borderCollapse = 'collapse';
-    table.style.tableLayout = 'fixed';
-    table.style.margin = '0';
-    table.style.pageBreakInside = 'avoid';
-    table.style.border = '1px solid #000';
-    table.style.boxSizing = 'border-box';
-    table.style.transformOrigin = 'top left'; // Transform origin ekle
-    
-    // TH ve TD stillerini güncelle
-    const allCells = table.querySelectorAll('th, td');
-    allCells.forEach(cell => {
-        cell.style.border = '1px solid #000';
-        cell.style.padding = '2px';
-        cell.style.boxSizing = 'border-box';
-    });
-    
-    // Tüm satır ve hücrelerin stillerini ayarla
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-        row.style.height = 'auto';
-        row.style.pageBreakInside = 'avoid';
-    });
-    
-    // İlk sütun (öğrenci adı) genişliğini ayarla
-    const firstColumnCells = table.querySelectorAll('tr > *:first-child');
-    firstColumnCells.forEach(cell => {
-        cell.style.width = '25%'; // 35% yerine 25% yap
-        cell.style.maxWidth = '25%'; // 35% yerine 25% yap
-        cell.style.textAlign = 'left';
-        cell.style.paddingLeft = '5px';
-        cell.style.whiteSpace = 'normal'; // Öğrenci ismi için normal text wrap
-        cell.style.overflow = 'visible'; // Taşan metin görünsün
-        cell.style.textOverflow = 'clip'; // Ellipsis yerine clip kullan
-        cell.style.fontWeight = 'normal';
-        cell.style.padding = '2px 5px';
-        cell.style.fontSize = '9px';
-        cell.style.lineHeight = '1.1';
-    });
-    
-    // Diğer sütunların genişliğini hafta sayısına göre dinamik ayarla
-    const otherColumnCells = table.querySelectorAll('tr > *:not(:first-child)');
-    const weekWidth = 75 / columnCount; // 65 yerine 75 yap
-    otherColumnCells.forEach(cell => {
-        cell.style.width = `${weekWidth}%`;
-        cell.style.maxWidth = `${weekWidth}%`;
-        cell.style.minWidth = `${weekWidth}%`;
-        cell.style.textAlign = 'center';
-        cell.style.padding = '2px 1px';
-    });
-    
-    // Yatay başlıkları hizala (dikey başlık divleri artık yok)
-    const periodHeaders = table.querySelectorAll('th:not(:first-child):not(:nth-child(2))');
-    periodHeaders.forEach(th => {
-        th.style.fontSize = '10px';
-        th.style.fontWeight = 'bold';
-        th.style.whiteSpace = 'normal';
-        th.style.wordWrap = 'break-word';
-        th.style.minHeight = '40px';
-        th.style.padding = '4px 2px';
-        th.style.lineHeight = '1.2';
-    });
-    
-    // Başlık hücrelerini güncelle
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-        th.style.backgroundColor = '#f2f2f2';
-        th.style.fontWeight = 'bold';
-        th.style.position = 'sticky';
-        th.style.top = '0';
-        th.style.verticalAlign = 'bottom';
-    });
-    
-    container.appendChild(table);
-    printWrapper.appendChild(container);
-    
-    return printWrapper;
+    const customTitle = document.getElementById('scheduleTitle').value.trim() || 'Ödev Çizelgesi';
+    title.textContent = `${className} - ${customTitle}${sectionTitle ? ` (${sectionTitle})` : ''}`;
+    table.className = 'homework-print-table';
+    page.append(title, table);
+    return page;
 }
 
-// Çoklu sayfa yazdırılabilir versiyonu oluşturma
-function createMultiPagePrintableVersion(className, firstPageTable, secondPageTable, firstPageWeeks, secondPageWeeks) {
-    // Ana print wrapper
+function createPrintableVersion(className, table) {
     const printWrapper = document.createElement('div');
     printWrapper.id = 'homeworkSchedulePrint';
-    printWrapper.style.width = '100%';
-    printWrapper.style.maxWidth = '100%';
-    printWrapper.style.margin = '0';
-    printWrapper.style.backgroundColor = 'white';
-    printWrapper.style.display = 'block';
-    printWrapper.style.boxSizing = 'border-box';
-
-    // İlk sayfa container
-    const firstPageContainer = document.createElement('div');
-    firstPageContainer.style.width = '100%';
-    firstPageContainer.style.minHeight = '100vh';
-    firstPageContainer.style.maxHeight = '100vh';
-    firstPageContainer.style.pageBreakAfter = 'always';
-    firstPageContainer.style.pageBreakInside = 'avoid';
-    firstPageContainer.style.padding = '8mm';
-    firstPageContainer.style.boxSizing = 'border-box';
-    firstPageContainer.style.position = 'relative';
-    firstPageContainer.style.overflow = 'hidden';
-
-    // İlk sayfa başlığı
-    const firstPageTitle = document.createElement('h2');
-    firstPageTitle.textContent = `${className} - Ödev Çizelgesi (1. Sayfa - ${firstPageWeeks} Hafta)`;
-    firstPageTitle.style.textAlign = 'center';
-    firstPageTitle.style.marginBottom = '15px';
-    firstPageTitle.style.marginTop = '0';
-    firstPageTitle.style.fontSize = '14px';
-    firstPageTitle.style.fontWeight = 'bold';
-    firstPageTitle.style.color = 'black';
-    firstPageTitle.style.pageBreakInside = 'avoid';
-
-    // İlk sayfa tablosu ayarları
-    firstPageTable.className = 'homework-print-table';
-    firstPageTable.style.width = '100%';
-    firstPageTable.style.height = 'auto';
-    firstPageTable.style.maxHeight = 'calc(100vh - 80px)';
-    firstPageTable.style.fontSize = firstPageWeeks > 15 ? '7px' : '8px';
-    firstPageTable.style.borderCollapse = 'collapse';
-    firstPageTable.style.tableLayout = 'fixed';
-    firstPageTable.style.margin = '0';
-    firstPageTable.style.pageBreakInside = 'avoid';
-
-    // İlk sayfa sütun genişliklerini ayarla
-    const firstPageColumnCount = firstPageTable.querySelectorAll('th').length - 1;
-    const firstPageStudentCells = firstPageTable.querySelectorAll('tr > *:first-child');
-    firstPageStudentCells.forEach(cell => {
-        cell.style.width = '25%';
-        cell.style.maxWidth = '25%';
-        cell.style.minWidth = '25%';
-    });
-
-    const firstPageOtherCells = firstPageTable.querySelectorAll('tr > *:not(:first-child)');
-    const firstPageWeekWidth = 75 / firstPageColumnCount;
-    firstPageOtherCells.forEach(cell => {
-        cell.style.width = `${firstPageWeekWidth}%`;
-        cell.style.maxWidth = `${firstPageWeekWidth}%`;
-        cell.style.minWidth = `${firstPageWeekWidth}%`;
-        cell.style.textAlign = 'center';
-        cell.style.padding = '2px 1px';
-    });
-
-    firstPageContainer.appendChild(firstPageTitle);
-    firstPageContainer.appendChild(firstPageTable);
-
-    // İkinci sayfa container
-    const secondPageContainer = document.createElement('div');
-    secondPageContainer.style.width = '100%';
-    secondPageContainer.style.minHeight = '100vh';
-    secondPageContainer.style.maxHeight = '100vh';
-    secondPageContainer.style.pageBreakBefore = 'always';
-    secondPageContainer.style.pageBreakInside = 'avoid';
-    secondPageContainer.style.padding = '8mm';
-    secondPageContainer.style.boxSizing = 'border-box';
-    secondPageContainer.style.position = 'relative';
-    secondPageContainer.style.overflow = 'hidden';
-
-    // İkinci sayfa başlığı
-    const secondPageTitle = document.createElement('h2');
-    secondPageTitle.textContent = `${className} - Ödev Çizelgesi (2. Sayfa - ${secondPageWeeks} Hafta)`;
-    secondPageTitle.style.textAlign = 'center';
-    secondPageTitle.style.marginBottom = '15px';
-    secondPageTitle.style.marginTop = '0';
-    secondPageTitle.style.fontSize = '14px';
-    secondPageTitle.style.fontWeight = 'bold';
-    secondPageTitle.style.color = 'black';
-    secondPageTitle.style.pageBreakInside = 'avoid';
-
-    // İkinci sayfa tablosu ayarları
-    secondPageTable.className = 'homework-print-table';
-    secondPageTable.style.width = '100%';
-    secondPageTable.style.height = 'auto';
-    secondPageTable.style.maxHeight = 'calc(100vh - 80px)';
-    secondPageTable.style.fontSize = secondPageWeeks > 15 ? '7px' : '8px';
-    secondPageTable.style.borderCollapse = 'collapse';
-    secondPageTable.style.tableLayout = 'fixed';
-    secondPageTable.style.margin = '0';
-    secondPageTable.style.pageBreakInside = 'avoid';
-
-    // İkinci sayfa sütun genişliklerini ayarla
-    const secondPageColumnCount = secondPageTable.querySelectorAll('th').length - 1;
-    const secondPageStudentCells = secondPageTable.querySelectorAll('tr > *:first-child');
-    secondPageStudentCells.forEach(cell => {
-        cell.style.width = '25%';
-        cell.style.maxWidth = '25%';
-        cell.style.minWidth = '25%';
-    });
-
-    const secondPageOtherCells = secondPageTable.querySelectorAll('tr > *:not(:first-child)');
-    const secondPageWeekWidth = 75 / secondPageColumnCount;
-    secondPageOtherCells.forEach(cell => {
-        cell.style.width = `${secondPageWeekWidth}%`;
-        cell.style.maxWidth = `${secondPageWeekWidth}%`;
-        cell.style.minWidth = `${secondPageWeekWidth}%`;
-        cell.style.textAlign = 'center';
-        cell.style.padding = '2px 1px';
-    });
-
-    secondPageContainer.appendChild(secondPageTitle);
-    secondPageContainer.appendChild(secondPageTable);
-
-    // Her iki sayfayı ana wrapper'a ekle
-    printWrapper.appendChild(firstPageContainer);
-    printWrapper.appendChild(secondPageContainer);
-
+    printWrapper.appendChild(createSchedulePrintPage(className, table));
     return printWrapper;
 }
 
@@ -863,30 +559,7 @@ document.getElementById('printScheduleBtn').addEventListener('click', function()
     const generatedPrintArea = generateHomeworkSchedule(startDate, endDate, true);
     if (!generatedPrintArea) return;
     
-    // Sayfa hazırsa yazdır
-    setTimeout(() => {
-        // Yazdırma tablosunun boyutunu kontrol et ve ayarla
-        const printArea = document.getElementById('homeworkSchedulePrint');
-        if (printArea) {
-            const columnCount = printArea.querySelector('table').querySelectorAll('th').length - 1;
-            if (columnCount > 10) {
-                // Kolonlar sayfa genişliğine sığmayabilir, fontları daha da küçült
-                printArea.querySelectorAll('th, td').forEach(cell => {
-                    cell.style.fontSize = cell.tagName === 'TH' ? '6px' : '7px';
-                    cell.style.padding = '1px';
-                });
-                
-                // Yatay başlıkları daha kompakt hale getir
-                printArea.querySelectorAll('th:not(:first-child):not(:nth-child(2))').forEach(th => {
-                    th.style.fontSize = '9px';
-                    th.style.minHeight = '35px';
-                    th.style.padding = '3px 1px';
-                });
-            }
-            
-            runPrintJob(printArea, { removeAfter: true });
-        }
-    }, 300);
+    runPrintJob(generatedPrintArea, { removeAfter: true });
 });
 
 // Tarih formatı
@@ -967,7 +640,7 @@ function generateCustomSchedule() {
     const previewNote = createPreviewNote(
         'alert alert-info mb-2',
         'bi bi-info-circle',
-        'Yazdırıldığında tablo A4 yatay sayfaya otomatik sığdırılacaktır. Buradaki görünüm sadece önizleme amaçlıdır.'
+        'Çizelge A4 yatay olarak yazdırılır. Uzun öğrenci listeleri, sütun başlıkları tekrarlanarak sonraki sayfada devam eder.'
     );
     previewArea.appendChild(previewNote);
     previewArea.appendChild(customTable.cloneNode(true));
