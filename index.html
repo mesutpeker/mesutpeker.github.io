@@ -268,6 +268,11 @@
       --accent-soft: #edf1ff;
     }
 
+    .app-card--meb {
+      --accent: #2851cc;
+      --accent-soft: #edf2ff;
+    }
+
     .app-card:hover {
       border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
       box-shadow: var(--shadow-hover);
@@ -454,6 +459,10 @@
         grid-column: auto;
       }
 
+      .app-card:last-child:nth-child(odd) {
+        grid-column: auto;
+      }
+
       .site-footer {
         margin-top: 34px;
       }
@@ -574,7 +583,7 @@
           </div>
         </a>
 
-        <a class="app-card" href="/edebiyat/">
+        <a class="app-card" href="/performans/">
           <div class="card-top">
             <span class="app-icon" aria-hidden="true"><strong>100</strong></span>
             <span class="card-arrow" aria-hidden="true">
@@ -585,8 +594,24 @@
             </span>
           </div>
           <div class="card-copy">
-            <h2>Performans Değerlendirme ( Meb )</h2>
+            <h2>Performans Değerlendirme</h2>
             <p>Öğrencileri ölçütlere göre puanlayın.</p>
+          </div>
+        </a>
+
+        <a class="app-card app-card--meb" href="/edebiyat/">
+          <div class="card-top">
+            <span class="app-icon" aria-hidden="true"><strong>MEB</strong></span>
+            <span class="card-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+            </span>
+          </div>
+          <div class="card-copy">
+            <h2>Performans Değerlendirme ( Meb )</h2>
+            <p>Toplam notu performans ölçeğindeki 20 ölçüte dağıtın.</p>
           </div>
         </a>
         <a class="app-card" href="/test/">
