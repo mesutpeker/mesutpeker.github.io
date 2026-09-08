@@ -4,15 +4,16 @@ let latestExtractionSummary = null;
 let editingStudentContext = null;
 
 async function extractClassInfo(pdf, options = {}) {
-    const classes = {};
+    const classes = Object.create(null);
     const summary = {
         totalPages: pdf.numPages,
         processedPages: 0,
-        classIssues: {},
+        classIssues: Object.create(null),
         issues: [],
         imageOnlyPages: []
     };
     let currentClass = null;
+    let previousRowNumber = null;
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
         if (options.isCancelled?.()) throw new DOMException('İşlem iptal edildi.', 'AbortError');
@@ -25,28 +26,39 @@ async function extractClassInfo(pdf, options = {}) {
             summary.imageOnlyPages.push(pageNum);
             summary.issues.push({ type: 'image-only', page: pageNum, message: `${pageNum}. sayfada seçilebilir metin bulunamadı.` });
             summary.processedPages = pageNum;
+            currentClass = null;
+            previousRowNumber = null;
             continue;
         }
 
         const lines = PdfParserCore.buildPositionedLines(textContent.items);
-        const detectedClass = PdfParserCore.extractClassName(lines.map(line => line.text).join('\n'));
+        const pageResult = PdfParserCore.parsePageLines(lines);
+        const firstStudentIndex = lines.findIndex(line =>
+            PdfParserCore.normalizeSpace(line.text) === pageResult.students[0]?.source_text);
+        const headerLines = firstStudentIndex >= 0 ? lines.slice(0, firstStudentIndex) : lines;
+        const detectedClass = headerLines.map(line => PdfParserCore.extractClassName(line.text)).find(Boolean);
+        const hasReportTitle = headerLines.some(line => /(?:Sınıf|Şube)\s*Listesi/iu.test(line.text));
+        const firstRowNumber = Number(pageResult.students[0]?.source_text.match(/^(\d+)\s+\d+\s/u)?.[1]) || null;
+        const isContinuation = currentClass && !hasReportTitle && previousRowNumber !== null &&
+            firstRowNumber === previousRowNumber + 1;
 
         if (detectedClass) {
             currentClass = detectedClass;
-            classes[currentClass] ||= [];
-            summary.classIssues[currentClass] ||= [];
-        } else if (!currentClass) {
-            summary.issues.push({ type: 'missing-class', page: pageNum, message: `${pageNum}. sayfada sınıf bilgisi bulunamadı.` });
-            summary.processedPages = pageNum;
-            continue;
+        } else if (isContinuation) {
+            summary.classIssues[currentClass].push(`${pageNum}. sayfa, sıra numaraları devam ettiği için aynı sınıfa eklendi.`);
         } else {
-            summary.classIssues[currentClass].push(`${pageNum}. sayfada sınıf başlığı bulunamadığı için önceki sınıf kullanıldı.`);
+            currentClass = `Başlığı okunamayan liste — Sayfa ${pageNum}`;
+            const message = `${pageNum}. sayfada sınıf başlığı okunamadı; öğrenci satırları ayrı bir listeye alındı.`;
+            summary.issues.push({ type: 'missing-class', page: pageNum, message });
+            summary.classIssues[currentClass] = [message];
         }
 
-        const pageResult = PdfParserCore.parsePageLines(lines);
+        classes[currentClass] ||= [];
+        summary.classIssues[currentClass] ||= [];
         if (pageResult.students.length === 0) summary.classIssues[currentClass].push(`${pageNum}. sayfada öğrenci satırı bulunamadı.`);
         if (pageResult.usedFallback) summary.classIssues[currentClass].push(`${pageNum}. sayfa yedek ayrıştırma yöntemiyle okundu.`);
         pageResult.students.forEach(student => classes[currentClass].push({ ...student, source_page: pageNum }));
+        previousRowNumber = Number(pageResult.students.at(-1)?.source_text.match(/^(\d+)\s+\d+\s/u)?.[1]) || null;
 
         summary.processedPages = pageNum;
         options.onProgress?.({ phase: 'parsing', current: pageNum, total: pdf.numPages });
@@ -308,4 +320,3 @@ function copyFullNames(className) {
 function copyAllStudentData(className) {
     copyText(classesByName[className].map(student => `${student.student_no}\t${student.first_name}\t${student.last_name}`).join('\n'));
 }
-

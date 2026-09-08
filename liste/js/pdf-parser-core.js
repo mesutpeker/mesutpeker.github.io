@@ -11,7 +11,8 @@
 
     const GENDER_PATTERN = /(Erkek|Kız)/iu;
     const GENDER_WORD_PATTERN = /\b(Erkek|Kız)\b/iu;
-    const CLASS_PATTERN = /(\d{1,2})\s*\.?\s*Sınıf\s*\/\s*([\p{L}\d-]{1,6})\s*Şubesi/iu;
+    const CLASS_PATTERN = /^(.+?)\s*\/\s*([^/]+?)\s*Şubesi(?:\s+(.*))?$/iu;
+    const REPORT_TITLE_PATTERN = /\s+(?:Sınıf|Şube)\s*Listesi\s*$/iu;
     const HEADER_PATTERN = /(?:öğrenci\s*no|adı\s*soyadı|sıra\s*no|şube\s*listesi|sınıf\s*listesi)/iu;
     const BOARDING_STATUS_PATTERN = /^(?:yatılı|gündüzlü)$/iu;
 
@@ -63,12 +64,18 @@
     }
 
     function extractClassName(value) {
-        const match = normalizeSpace(value).match(CLASS_PATTERN);
-        if (!match) return null;
+        const text = normalizeSpace(value);
+        const title = text.replace(REPORT_TITLE_PATTERN, '').trim();
+        const match = title.match(CLASS_PATTERN);
+        if (!match) return title && title !== text ? title : null;
 
-        const grade = String(Number(match[1]));
-        const branch = match[2].toLocaleUpperCase('tr-TR');
-        return `${grade}. Sınıf / ${branch} Şubesi`;
+        // Class/program names and branch labels are data, not a fixed vocabulary.
+        const classLabel = normalizeSpace(match[1])
+            .replace(/(^|\s)(\d{1,2})\s*\.\s*/u, '$1$2. ')
+            .replace(/(^|\s)(\d{1,2})\s*\.?\s*Sınıf$/iu, (_, space, grade) => `${space}${Number(grade)}. Sınıf`);
+        const branch = normalizeSpace(match[2]).toLocaleUpperCase('tr-TR');
+        const detail = normalizeSpace(match[3]);
+        return `${classLabel} / ${branch} Şubesi${detail ? ` ${detail}` : ''}`;
     }
 
     function buildPositionedLines(items, options = {}) {
