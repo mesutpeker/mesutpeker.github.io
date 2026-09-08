@@ -10,6 +10,7 @@
     <!-- Kendi CSS dosyalarımız -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="css/site-theme.css" media="screen">
 </head>
 <body>
     <div class="header-section">
@@ -324,143 +325,84 @@
 
     <!-- PDF İndirme Rehberi Modal -->
     <div class="modal fade" id="pdfGuideModal" tabindex="-1" aria-labelledby="pdfGuideModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header" style="background-color: #007bff; color: white;">
+                <div class="modal-header">
                     <h2 class="modal-title h5" id="pdfGuideModalLabel">
                         <i class="bi bi-file-earmark-pdf"></i> E-Okul'dan PDF İndirme Rehberi
                     </h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1)"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        
-                        <!-- Genel Açıklama -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="alert alert-info">
-                                    <h3 class="h6"><i class="bi bi-info-circle"></i> Bu Rehber Hakkında:</h3>
-                                    <p class="mb-0">Bu rehber E-Okul sisteminden öğrenci listesi PDF'ini indirmenin adım adım görsel kılavuzudur.</p>
-                                </div>
+                <div class="modal-body" id="pdfGuideSteps">
+                    <section class="step-card guide-step" aria-labelledby="guideStep1Title">
+                        <div class="step-header">
+                            <span class="step-number" aria-hidden="true">1</span>
+                            <h3 class="step-title h6" id="guideStep1Title">E-Okul'a Giriş Yapın ve Öğrenci İşlemlerine Gidin</h3>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-image-container">
+                                <img src="images/step1.png" class="img-fluid step-image" alt="E-Okul ortaöğretim öğrenci işlemleri ekranı">
+                            </div>
+                            <div class="step-instructions-inline">
+                                <p>E-Okul'a giriş yapın ve sol menüden <span class="highlight">"Ortaöğretim Öğrenci İşlemleri"</span> seçin</p>
                             </div>
                         </div>
-                        
-                        <!-- Adım 1 -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="step-card">
-                                    <div class="step-header">
-                                        <span class="step-number">1</span>
-                                        <h3 class="step-title h6">E-Okul'a Giriş Yapın ve Öğrenci İşlemlerine Gidin</h3>
-                                    </div>
-                                    <div class="step-content">
-                                        <div class="row">
-                                                                                         <div class="col-md-12">
-                                                 <div class="step-image-container">
-                                                     <img src="images/step1.png" class="img-fluid step-image" alt="E-Okul ortaöğretim öğrenci işlemleri ekranı">
-                                                 </div>
-                                                 <div class="step-instructions-inline">
-                                                     <p><i class="bi bi-1-circle-fill text-primary"></i> E-Okul'a giriş yapın ve sol menüden <span class="highlight">"Ortaöğretim Öğrenci İşlemleri"</span> seçin</p>
-                                                 </div>
-                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    </section>
+                    <section class="step-card guide-step" aria-labelledby="guideStep2Title" hidden>
+                        <div class="step-header">
+                            <span class="step-number" aria-hidden="true">2</span>
+                            <h3 class="step-title h6" id="guideStep2Title">Öğrenci Arama Bölümüne Gidin</h3>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-image-container">
+                                <img src="images/step2.png" class="img-fluid step-image" alt="E-Okul öğrenci arama ve yazdır düğmesi ekranı">
+                            </div>
+                            <div class="step-instructions-inline">
+                                <p>Öğrenci bilgilerini girin ve mavi <span class="highlight">"Yazdır"</span> butonuna tıklayın</p>
                             </div>
                         </div>
-
-                        <!-- Adım 2 -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="step-card">
-                                    <div class="step-header">
-                                        <span class="step-number">2</span>
-                                        <h3 class="step-title h6">Öğrenci Arama Bölümüne Gidin</h3>
-                                    </div>
-                                    <div class="step-content">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="step-image-container">
-                                                    <img src="images/step2.png" class="img-fluid step-image" alt="E-Okul öğrenci arama ve yazdır düğmesi ekranı">
-                                                </div>
-                                                <div class="step-instructions-inline">
-                                                    <p><i class="bi bi-2-circle-fill text-primary"></i> Öğrenci bilgilerini girin ve mavi <span class="highlight">"Yazdır"</span> butonuna tıklayın</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    </section>
+                    <section class="step-card guide-step" aria-labelledby="guideStep3Title" hidden>
+                        <div class="step-header">
+                            <span class="step-number" aria-hidden="true">3</span>
+                            <h3 class="step-title h6" id="guideStep3Title">Şube Listesi Raporunu Seçin</h3>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-image-container">
+                                <img src="images/step3.png" class="img-fluid step-image" alt="E-Okul şube listesi raporu seçim ekranı">
+                            </div>
+                            <div class="step-instructions-inline">
+                                <p>Rapor listesinden <span class="highlight">"Şube Listesi (Öğrenci No Sıralı)"</span> raporunu seçin</p>
                             </div>
                         </div>
-
-                        <!-- Adım 3 -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="step-card">
-                                    <div class="step-header">
-                                        <span class="step-number">3</span>
-                                        <h3 class="step-title h6">Şube Listesi Raporunu Seçin</h3>
-                                    </div>
-                                    <div class="step-content">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="step-image-container">
-                                                    <img src="images/step3.png" class="img-fluid step-image" alt="E-Okul şube listesi raporu seçim ekranı">
-                                                </div>
-                                                <div class="step-instructions-inline">
-                                                    <p><i class="bi bi-3-circle-fill text-primary"></i> Rapor listesinden <span class="highlight">"Şube Listesi (Öğrenci No Sıralı)"</span> raporunu seçin</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    </section>
+                    <section class="step-card guide-step" aria-labelledby="guideStep4Title" hidden>
+                        <div class="step-header">
+                            <span class="step-number" aria-hidden="true">4</span>
+                            <h3 class="step-title h6" id="guideStep4Title">PDF Dosyasını İndirin</h3>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-image-container">
+                                <img src="images/step4.png" class="img-fluid step-image" alt="E-Okul raporu PDF olarak indirme ekranı">
+                            </div>
+                            <div class="step-instructions-inline">
+                                <p>Ayarları yapın ve yeşil <span class="highlight">"Tamam"</span> butonuna tıklayarak PDF'i indirin</p>
                             </div>
                         </div>
-
-                        <!-- Adım 4 -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="step-card">
-                                    <div class="step-header">
-                                        <span class="step-number">4</span>
-                                        <h3 class="step-title h6">PDF Dosyasını İndirin</h3>
-                                    </div>
-                                    <div class="step-content">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="step-image-container">
-                                                    <img src="images/step4.png" class="img-fluid step-image" alt="E-Okul raporu PDF olarak indirme ekranı">
-                                                </div>
-                                                <div class="step-instructions-inline">
-                                                    <p><i class="bi bi-4-circle-fill text-primary"></i> Ayarları yapın ve yeşil <span class="highlight">"Tamam"</span> butonuna tıklayarak PDF'i indirin</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Özet -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="alert alert-success">
-                                    <h3 class="h6"><i class="bi bi-check-circle"></i> Özet:</h3>
-                                    <p class="mb-0">
-                                        E-Okul → Ortaöğretim Öğrenci İşlemleri → Öğrenci Arama → Yazdır → 
-                                        Şube Listesi (Öğrenci No Sıralı) → Tamam → PDF İndir
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                    </section>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                    <button type="button" class="btn btn-primary" id="openEschoolBtn">
-                        <i class="bi bi-arrow-up-right-square"></i> E-Okul'a Git
-                    </button>
+                    <div class="guide-navigation" aria-label="Rehber adımları">
+                        <button type="button" class="btn btn-outline-primary" id="guidePreviousBtn" aria-controls="pdfGuideSteps" disabled>Önceki adım</button>
+                        <span id="guideStepStatus" role="status" aria-live="polite" aria-atomic="true">Adım 1 / 4</span>
+                        <button type="button" class="btn btn-primary" id="guideNextBtn" aria-controls="pdfGuideSteps">Sonraki adım</button>
+                    </div>
+                    <div class="guide-footer-links">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                        <button type="button" class="btn btn-outline-primary" id="openEschoolBtn">
+                            <i class="bi bi-arrow-up-right-square"></i> E-Okul'a Git
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -473,7 +415,7 @@
     <script src="vendor/pdfjs/pdf.worker.min.js"></script>
     <script src="js/pdfjs-loader.js"></script>
     <script src="js/pdf-parser-core.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/main.js?v=guide-steps-20260908"></script>
     <script src="js/pdf-processing.js"></script>
     <script src="js/homework.js"></script>
     <script src="js/seating-plan.js"></script>

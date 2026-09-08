@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeUploadControls();
     initializeFeatureActions();
-    initializeGuideAccordion();
+    initializeGuideSteps();
     initializeExternalLink();
     waitForPdfLibrary();
 });
@@ -113,40 +113,33 @@ function initializeFeatureActions() {
     });
 }
 
-function initializeGuideAccordion() {
-    document.querySelectorAll('#pdfGuideModal .step-card').forEach((card, index) => {
-        const header = card.querySelector('.step-header');
-        const content = card.querySelector('.step-content');
-        if (!header || !content) return;
+function initializeGuideSteps() {
+    const modal = document.getElementById('pdfGuideModal');
+    const steps = Array.from(modal.querySelectorAll('.guide-step'));
+    const previous = document.getElementById('guidePreviousBtn');
+    const next = document.getElementById('guideNextBtn');
+    const status = document.getElementById('guideStepStatus');
+    let currentStep = 0;
 
-        const contentId = `guide-step-content-${index + 1}`;
-        content.id = contentId;
-        header.tabIndex = 0;
-        header.setAttribute('role', 'button');
-        header.setAttribute('aria-controls', contentId);
-        header.setAttribute('aria-expanded', index === 0 ? 'true' : 'false');
-        content.hidden = index !== 0;
+    function showStep(index) {
+        currentStep = Math.max(0, Math.min(index, steps.length - 1));
+        steps.forEach((step, stepIndex) => { step.hidden = stepIndex !== currentStep; });
+        previous.disabled = currentStep === 0;
+        next.textContent = currentStep === steps.length - 1 ? 'Tamam' : 'Sonraki adım';
+        status.textContent = `Adım ${currentStep + 1} / ${steps.length}`;
+        modal.querySelector('.modal-body').scrollTop = 0;
+    }
 
-        const toggle = () => {
-            const willOpen = header.getAttribute('aria-expanded') !== 'true';
-            document.querySelectorAll('#pdfGuideModal .step-header').forEach(otherHeader => {
-                const controlledId = otherHeader.getAttribute('aria-controls');
-                otherHeader.setAttribute('aria-expanded', 'false');
-                const otherContent = controlledId ? document.getElementById(controlledId) : null;
-                if (otherContent) otherContent.hidden = true;
-            });
-            header.setAttribute('aria-expanded', String(willOpen));
-            content.hidden = !willOpen;
-        };
-
-        header.addEventListener('click', toggle);
-        header.addEventListener('keydown', event => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                toggle();
-            }
-        });
+    previous.addEventListener('click', () => showStep(currentStep - 1));
+    next.addEventListener('click', () => {
+        if (currentStep === steps.length - 1) {
+            bootstrap.Modal.getOrCreateInstance(modal).hide();
+        } else {
+            showStep(currentStep + 1);
+        }
     });
+    modal.addEventListener('show.bs.modal', () => showStep(0));
+    showStep(0);
 }
 
 function initializeExternalLink() {

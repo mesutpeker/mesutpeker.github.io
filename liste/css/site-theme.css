@@ -1,0 +1,201 @@
+/* Yalnızca ekran görünümü: mesutpeker.com renkleri. */
+:root {
+    --mp-page: #fbfcf9;
+    --mp-surface: #fff;
+    --mp-text: #111b21;
+    --mp-muted: #687279;
+    --mp-border: #dfe4e1;
+    --mp-teal: #0f8f83;
+    --mp-teal-dark: #08786e;
+    --mp-soft: #e6f7f3;
+    --mp-soft-border: #b8dcd4;
+    --bs-primary-rgb: 15, 143, 131;
+}
+
+body {
+    color: var(--mp-text);
+    background-color: var(--mp-page);
+    background-image: radial-gradient(circle at 88% 9%, rgba(203, 245, 236, .52), transparent 26%),
+        radial-gradient(circle at 10% 42%, rgba(255, 235, 211, .5), transparent 24%);
+}
+
+.card, .modal-content, .desk-row { background-color: var(--mp-surface); }
+.card { box-shadow: 0 10px 30px rgba(25, 43, 37, .08); }
+.card:hover { box-shadow: 0 15px 35px rgba(25, 43, 37, .12); }
+.text-muted, #no-results p { color: var(--mp-muted) !important; }
+.text-primary, #upload-area .bi { color: var(--mp-teal-dark) !important; }
+
+.header-section, .results-summary, .class-header {
+    background: linear-gradient(135deg, var(--mp-teal-dark), var(--mp-teal));
+    box-shadow: 0 5px 15px rgba(15, 143, 131, .2);
+}
+.results-summary-title .bi { color: #c3f3e7; }
+.modal-header { background: var(--mp-teal-dark) !important; color: #fff; }
+.modal-header .btn-close { filter: invert(1); }
+.modal-content, .modal-header, .modal-footer { border-color: var(--mp-border); }
+
+.alert-info, .alert-success {
+    color: #155e55;
+    background-color: var(--mp-soft);
+    border-color: var(--mp-soft-border);
+}
+.privacy-note { color: #155e55; }
+.processing-status {
+    color: var(--mp-text);
+    background: #f4faf7;
+    border-color: var(--mp-soft-border);
+}
+.processing-status progress { accent-color: var(--mp-teal); }
+#upload-area {
+    border-color: var(--mp-teal);
+    background-color: rgba(15, 143, 131, .03);
+}
+#upload-area:hover, #upload-area.dragover, #upload-area:focus-visible {
+    border-color: var(--mp-teal-dark);
+    background-color: var(--mp-soft);
+}
+#upload-area:focus-visible, .student-seat:focus-visible { outline-color: var(--mp-teal-dark); }
+.form-control, .form-select { color: var(--mp-text); border-color: var(--mp-border); }
+.form-control:focus, .form-select:focus, #printTitleModal .form-control:focus {
+    border-color: var(--mp-teal);
+    box-shadow: 0 0 0 .2rem rgba(15, 143, 131, .2);
+}
+.form-check-input:checked { background-color: var(--mp-teal-dark); border-color: var(--mp-teal-dark); }
+.form-check-input:focus { border-color: var(--mp-teal); box-shadow: 0 0 0 .2rem rgba(15, 143, 131, .2); }
+
+.btn-primary, .btn-success, .btn-warning[data-bs-target="#pdfGuideModal"] {
+    color: #fff;
+    background-color: var(--mp-teal-dark);
+    border-color: var(--mp-teal-dark);
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active,
+.btn-success:hover, .btn-success:focus, .btn-success:active,
+#printTitleModal .btn-success:hover,
+.btn-warning[data-bs-target="#pdfGuideModal"]:hover,
+.btn-warning[data-bs-target="#pdfGuideModal"]:focus {
+    color: #fff;
+    background-color: #06655d;
+    border-color: #06655d;
+    box-shadow: 0 0 0 .2rem rgba(15, 143, 131, .2);
+}
+.btn-primary:disabled, .btn-success:disabled { background-color: var(--mp-teal-dark); border-color: var(--mp-teal-dark); }
+.btn-outline-primary { color: var(--mp-teal-dark); border-color: var(--mp-teal-dark); }
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+    color: #fff;
+    background-color: var(--mp-teal-dark);
+    border-color: var(--mp-teal-dark);
+    box-shadow: 0 0 0 .2rem rgba(15, 143, 131, .2);
+}
+.btn-outline-primary:disabled { color: var(--mp-teal-dark); background-color: transparent; }
+.btn-secondary { background-color: var(--mp-muted); border-color: var(--mp-muted); }
+
+.toolbar-btn-red, .toolbar-btn-teal, .toolbar-btn-green, .toolbar-btn-emerald { background: var(--mp-teal-dark); }
+.toolbar-btn-amber, .toolbar-btn-orange { background: #c65d08; }
+.toolbar-btn-purple, .toolbar-btn-indigo { background: #5b43df; }
+.table { --bs-table-striped-bg: rgba(15, 143, 131, .025); }
+.table th, .student-table thead { background-color: #f2f7f4; }
+.student-table th, .student-number { color: var(--mp-teal-dark); }
+.table td, .student-table td { color: var(--mp-text); border-color: var(--mp-border); }
+.student-table th { border-color: var(--mp-soft-border); }
+.student-table td.row-num { color: var(--mp-muted); }
+.student-table tbody tr:nth-child(even), .table-striped tbody tr:nth-of-type(odd), .even-row { background-color: #f7faf8; }
+.table tr:hover, .student-table tbody tr:hover { background-color: var(--mp-soft) !important; }
+.row-action-button, .row-edit-btn { color: var(--mp-teal-dark); background: var(--mp-surface); border-color: var(--mp-soft-border); }
+.row-action-button:hover, .row-action-button:focus-visible, .row-edit-btn:hover, .row-edit-btn:focus-visible {
+    color: var(--mp-teal-dark);
+    background: var(--mp-soft);
+    border-color: var(--mp-teal);
+}
+.classroom { background-color: #f4f8f5; border-color: var(--mp-border); }
+.teacher-desk { background-color: #c65d08; box-shadow: 0 4px 8px rgba(198, 93, 8, .2); }
+.desk-number { background-color: var(--mp-teal-dark); }
+.student-seat.occupied { background-color: var(--mp-soft); border-color: var(--mp-teal); }
+.student-seat.occupied:hover { background-color: #d3eee7; border-color: var(--mp-teal-dark); }
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(15, 143, 131, .3); }
+    50% { box-shadow: 0 0 20px rgba(15, 143, 131, .4), 0 0 30px rgba(15, 143, 131, .2); }
+}
+
+/* Rehberde yalnızca seçilen adım görünür; gezinme düğmeleri sabit kalır. */
+#pdfGuideModal .modal-dialog {
+    width: calc(100% - 24px);
+    max-width: 1200px;
+    height: calc(100% - 24px);
+    height: calc(100dvh - 24px);
+    min-height: 0;
+    margin: 12px auto;
+}
+#pdfGuideModal .modal-content { height: 100%; max-height: 850px; overflow: hidden; }
+#pdfGuideModal .modal-header { background: var(--mp-teal-dark); }
+#pdfGuideModal .modal-body { display: flex; min-height: 0; padding: 16px; overflow-y: auto; }
+#pdfGuideModal .guide-step {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    min-height: 230px;
+    border-color: var(--mp-border);
+    box-shadow: none;
+    transform: none;
+}
+#pdfGuideModal .guide-step[hidden] { display: none !important; }
+#pdfGuideModal .step-header {
+    flex-shrink: 0;
+    flex-direction: row;
+    gap: 10px;
+    padding: 12px;
+    color: var(--mp-text);
+    background: #f2f7f4;
+    cursor: default;
+    text-align: left;
+}
+#pdfGuideModal .step-header::after { content: none; }
+#pdfGuideModal .step-number {
+    flex-shrink: 0;
+    margin: 0;
+    color: #fff;
+    background: var(--mp-teal-dark);
+    border-color: transparent;
+    animation: none;
+}
+#pdfGuideModal .step-content { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 12px; gap: 12px; }
+#pdfGuideModal .step-image-container {
+    position: relative;
+    flex: 1;
+    min-height: 80px;
+    padding: 0;
+    border: 1px solid var(--mp-border);
+    background: var(--mp-surface);
+}
+#pdfGuideModal .step-image {
+    position: absolute;
+    inset: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    max-height: none;
+    min-height: 0;
+    object-fit: contain;
+    background: var(--mp-surface);
+    border: 0;
+    box-shadow: none;
+    transform: none;
+}
+#pdfGuideModal .step-instructions-inline { flex-shrink: 0; margin: 0; padding: 10px 12px; background: #f2f7f4; border-color: var(--mp-teal); }
+#pdfGuideModal .step-instructions-inline p { color: var(--mp-text); }
+#pdfGuideModal .highlight { color: #155e55; background: var(--mp-soft); }
+#pdfGuideModal .modal-footer { flex-shrink: 0; gap: 12px 24px; }
+#pdfGuideModal .modal-footer > * { margin: 0; }
+#pdfGuideModal .guide-navigation { display: grid; grid-template-columns: auto minmax(70px, 1fr) auto; align-items: center; gap: 8px; flex: 1 1 420px; }
+#guideStepStatus { text-align: center; color: var(--mp-muted); font-size: 14px; }
+#pdfGuideModal .guide-footer-links { display: flex; flex-wrap: wrap; gap: 8px; }
+#pdfGuideModal .btn { min-height: 44px; }
+@media (max-width: 600px) {
+    #pdfGuideModal .modal-header, #pdfGuideModal .modal-body, #pdfGuideModal .modal-footer { padding: 10px; }
+    #pdfGuideModal .modal-title { font-size: 16px; }
+    #pdfGuideModal .step-header, #pdfGuideModal .step-content { padding: 8px; }
+    #pdfGuideModal .step-title, #pdfGuideModal .step-instructions-inline p { font-size: 14px; }
+    #pdfGuideModal .guide-navigation { flex-basis: 100%; }
+    #pdfGuideModal .guide-footer-links { margin-left: auto; }
+    #pdfGuideModal .btn { font-size: 14px; padding-inline: 10px; }
+}
