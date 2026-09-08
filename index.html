@@ -243,17 +243,17 @@
       background: var(--accent-soft);
     }
 
-    .app-card:nth-child(2) {
+    .app-card[href="/rapor/"] {
       --accent: #5b43df;
       --accent-soft: #efefff;
     }
 
-    .app-card:nth-child(3) {
+    .app-card[href="/zumre/"] {
       --accent: #c65d08;
       --accent-soft: #fff6dd;
     }
 
-    .app-card:nth-child(4) {
+    .app-card[href="/performans/"] {
       --accent: #087dab;
       --accent-soft: #eaf6ff;
     }
@@ -516,6 +516,28 @@
       </section>
 
       <nav class="app-grid" id="uygulamalar" aria-label="Eğitim araçları">
+        <a class="app-card" href="/test/">
+          <div class="card-top">
+            <span class="app-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <path d="m8 15 2 2 5-5"></path>
+              </svg>
+            </span>
+            <span class="card-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+            </span>
+          </div>
+          <div class="card-copy">
+            <h2>Test Oluştur</h2>
+            <p>PDF ve görsellerden soruları seçip A4 test hazırlayın.</p>
+          </div>
+        </a>
+
         <a class="app-card" href="/liste/">
           <div class="card-top">
             <span class="app-icon" aria-hidden="true">
@@ -562,27 +584,6 @@
           </div>
         </a>
 
-        <a class="app-card" href="/zumre/">
-          <div class="card-top">
-            <span class="app-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 11l3 3L22 4"></path>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-              </svg>
-            </span>
-            <span class="card-arrow" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="7" y1="17" x2="17" y2="7"></line>
-                <polyline points="7 7 17 7 17 17"></polyline>
-              </svg>
-            </span>
-          </div>
-          <div class="card-copy">
-            <h2>Zümre Tutanakları</h2>
-            <p>Zümre tutanağını hazırlayın.</p>
-          </div>
-        </a>
-
         <a class="app-card" href="/performans/">
           <div class="card-top">
             <span class="app-icon" aria-hidden="true"><strong>100</strong></span>
@@ -614,13 +615,13 @@
             <p>Toplam notu performans ölçeğindeki 20 ölçüte dağıtın.</p>
           </div>
         </a>
-        <a class="app-card" href="/test/">
+
+        <a class="app-card" href="/zumre/">
           <div class="card-top">
             <span class="app-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <path d="m8 15 2 2 5-5"></path>
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
               </svg>
             </span>
             <span class="card-arrow" aria-hidden="true">
@@ -631,10 +632,11 @@
             </span>
           </div>
           <div class="card-copy">
-            <h2>Test Atölyesi</h2>
-            <p>PDF ve görsellerden soruları seçip A4 test hazırlayın.</p>
+            <h2>Zümre Tutanakları</h2>
+            <p>Zümre tutanağını hazırlayın.</p>
           </div>
         </a>
+
         <a class="app-card app-card--proje" href="/proje/">
           <div class="card-top">
             <span class="app-icon" aria-hidden="true">
