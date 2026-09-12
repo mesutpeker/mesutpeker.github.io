@@ -29,8 +29,14 @@ function isHomeworkBreak(date) {
     return homeworkBreakWeeks.includes(homeworkDateValue(getHomeworkWeekStart(date)));
 }
 
+function selectHomeworkTerm(value) {
+    document.querySelectorAll('input[name="homeworkTerm"]').forEach(input => {
+        input.checked = input.value === value;
+    });
+}
+
 function applyHomeworkTerm() {
-    const term = homeworkTerms[document.getElementById('homeworkTerm').value];
+    const term = homeworkTerms[document.querySelector('input[name="homeworkTerm"]:checked').value];
     if (term) {
         document.getElementById('startDate').value = term.start;
         document.getElementById('endDate').value = term.end;
@@ -44,7 +50,7 @@ function setDefaultDates() {
     const endDate = new Date();
     endDate.setDate(today.getDate() + 28); // 4 hafta sonra
     
-    document.getElementById('homeworkTerm').value = 'custom';
+    selectHomeworkTerm('custom');
     document.getElementById('startDate').value = homeworkDateValue(startDate);
     document.getElementById('endDate').value = homeworkDateValue(endDate);
 }
@@ -945,9 +951,9 @@ function createCustomPrintableVersion(className, table) {
 document.addEventListener('DOMContentLoaded', function() {
     const homeworkModal = document.getElementById('homeworkScheduleModal');
     const invalidateHomeworkPreview = event => {
-        if (event.target.id === 'homeworkTerm') applyHomeworkTerm();
+        if (event.target.name === 'homeworkTerm') applyHomeworkTerm();
         if (['startDate', 'endDate'].includes(event.target.id)) {
-            document.getElementById('homeworkTerm').value = 'custom';
+            selectHomeworkTerm('custom');
         }
         updateHomeworkStudentMode();
         document.getElementById('daySelectionArea').style.display = document.getElementById('dailySchedule').checked ? '' : 'none';

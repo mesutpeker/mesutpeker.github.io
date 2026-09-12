@@ -137,6 +137,10 @@ body {
 #blankHomeworkSettings[hidden] { display: none !important; }
 #homeworkScheduleModal .form-text { font-size: .875rem; }
 #homeworkScheduleModal .modal-footer .btn { min-height: 44px; }
+.homework-term-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.homework-term-options .btn { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: .6rem .4rem; font-size: .875rem; font-weight: 600; white-space: normal; }
+.homework-term-options .btn-check:checked + .btn { color: #fff; background-color: var(--mp-teal-dark); border-color: var(--mp-teal-dark); }
+.homework-term-options .btn-check:focus + .btn { outline: 2px solid var(--mp-teal-dark); outline-offset: 3px; box-shadow: none; }
 @media (max-width: 767px) {
     .start-tools { grid-template-columns: 1fr; gap: 1rem; }
     .start-tool .card-body { padding: 1.25rem; }

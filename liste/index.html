@@ -10,7 +10,7 @@
     <!-- Kendi CSS dosyalarımız -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/print.css">
-    <link rel="stylesheet" href="css/site-theme.css?v=manual-students-20260911" media="screen">
+    <link rel="stylesheet" href="css/site-theme.css?v=term-buttons-20260912" media="screen">
 </head>
 <body>
     <div class="header-section">
@@ -284,19 +284,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="homeworkTerm" class="form-label">Tarih Aralığı</label>
-                        <select class="form-select" id="homeworkTerm" aria-describedby="homeworkCalendarHelp">
-                            <option value="custom">Özel tarih aralığı</option>
-                            <option value="first">2026–2027 · 1. Dönem</option>
-                            <option value="second">2026–2027 · 2. Dönem</option>
-                        </select>
+                    <fieldset class="mb-3" aria-describedby="homeworkCalendarHelp">
+                        <legend class="form-label fs-6">Tarih Aralığı <span class="text-muted">· 2026–2027</span></legend>
+                        <div class="homework-term-options">
+                            <input class="btn-check" type="radio" name="homeworkTerm" id="homeworkTermCustom" value="custom" checked>
+                            <label class="btn btn-outline-primary" for="homeworkTermCustom">Özel tarih aralığı</label>
+                            <input class="btn-check" type="radio" name="homeworkTerm" id="homeworkTermFirst" value="first">
+                            <label class="btn btn-outline-primary" for="homeworkTermFirst">1. Dönem</label>
+                            <input class="btn-check" type="radio" name="homeworkTerm" id="homeworkTermSecond" value="second">
+                            <label class="btn btn-outline-primary" for="homeworkTermSecond">2. Dönem</label>
+                        </div>
                         <div class="form-text" id="homeworkCalendarHelp">
                             Dönem seçince tarihler otomatik doldurulur; isterseniz değiştirebilirsiniz.
                             <a href="https://www.meb.gov.tr/2026-2027-egitim-ogretim-yili-takvimi-aciklandi/haber/41057/tr" target="_blank" rel="noopener noreferrer">MEB 2026–2027 takvimindeki</a>
                             16–20 Kasım 2026 ve 8–12 Mart 2027 ara tatil haftaları, hafta sonlarıyla birlikte günlük ve haftalık çizelgelere dahil edilmez.
                         </div>
-                    </div>
+                    </fieldset>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="startDate" class="form-label">Başlangıç Tarihi</label>
@@ -492,7 +495,7 @@
     <script src="js/main.js?v=manual-students-20260911"></script>
     <script src="js/pdf-processing.js?v=manual-students-20260911"></script>
     <script src="js/manual-students.js?v=manual-students-20260911"></script>
-    <script src="js/homework.js?v=term-calendar-20260912"></script>
+    <script src="js/homework.js?v=term-buttons-20260912"></script>
     <script src="js/seating-plan.js"></script>
 </body>
 </html> 
