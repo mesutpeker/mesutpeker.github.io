@@ -2,7 +2,7 @@
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 const MAX_PAGE_COUNT = 200;
-let classesByName = {};
+let classesByName = Object.create(null);
 let currentScheduleClass = null;
 let debugInfo = null;
 let debugMode = false;
@@ -92,6 +92,11 @@ function initializeUploadControls() {
 }
 
 function initializeFeatureActions() {
+    document.getElementById('blankHomeworkScheduleBtn').addEventListener('click', () => {
+        prepareHomeworkModal();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('homeworkScheduleModal')).show();
+    });
+
     document.addEventListener('click', event => {
         const featureButton = event.target.closest('.btn-homework-schedule, .btn-custom-schedule, .btn-seating-plan');
         if (!featureButton || featureButton.disabled) return;
@@ -157,8 +162,9 @@ async function startFileProcessing(file) {
 
     cancelActiveProcessing({ silent: true });
     const jobId = ++activeJobId;
-    resetUI();
-    classesByName = {};
+    clearTimeout(errorHideTimer);
+    document.getElementById('error-message').classList.add('hidden');
+    document.getElementById('no-results').classList.add('hidden');
     currentScheduleClass = null;
     resetFeatureStates();
     showLoading(true, `“${file.name}” okunuyor…`);
@@ -192,12 +198,13 @@ async function startFileProcessing(file) {
         });
         await pdf.destroy();
         ensureActiveJob(jobId);
-        classesByName = result.classes;
+        classesByName = mergeManualStudents(result.classes, classesByName);
+        result.summary.classCount = Object.values(classesByName).filter(students => students.length).length;
+        result.summary.studentCount = Object.values(classesByName).reduce((sum, students) => sum + students.length, 0);
+        displayClassesAndStudents(classesByName, result.summary);
 
         if (result.summary.classCount === 0 || result.summary.studentCount === 0) {
             document.getElementById('no-results').classList.remove('hidden');
-        } else {
-            displayClassesAndStudents(classesByName, result.summary);
         }
         updateProgress(100, `${result.summary.classCount} sınıf ve ${result.summary.studentCount} öğrenci bulundu.`);
         debugLog('PDF işleme tamamlandı.', { pages: pdf.numPages, classes: result.summary.classCount, students: result.summary.studentCount });
@@ -280,6 +287,7 @@ function resetFeatureStates() {
 }
 
 function showLoading(isLoading, statusText = 'PDF işleniyor…') {
+    document.getElementById('manualStudentFields').disabled = isLoading;
     const uploadArea = document.getElementById('upload-area');
     const processingStatus = document.getElementById('processing-status');
     const fileInput = document.getElementById('pdf-file');

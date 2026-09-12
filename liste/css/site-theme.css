@@ -117,7 +117,71 @@ body {
     50% { box-shadow: 0 0 20px rgba(15, 143, 131, .4), 0 0 30px rgba(15, 143, 131, .2); }
 }
 
+/* İsimli ve boş çizelge akışları ana ekrandan doğrudan başlar. */
+.start-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+.start-tool { margin-bottom: 0; border: 1px solid var(--mp-border); }
+.start-tool:hover { transform: none; }
+.start-tool .card-body { display: flex; flex-direction: column; align-items: stretch; padding: 1.5rem; }
+.tool-kicker { color: var(--mp-teal-dark); font-size: .875rem; font-weight: 600; margin-bottom: .75rem; }
+.start-tool h2 { font-weight: 700; }
+.start-tool .btn { min-height: 44px; white-space: normal; }
+.start-tool .privacy-note { font-size: .875rem; }
+.start-tool #upload-area { padding: 1.25rem .75rem; }
+.start-tool .upload-title { font-size: 1.125rem; }
+.blank-schedule-tool { border-color: var(--mp-soft-border); }
+.blank-schedule-options { display: grid; gap: 1rem; padding: 1rem 0; margin-bottom: 1.5rem; list-style: none; }
+.blank-schedule-options li { display: flex; align-items: baseline; gap: .75rem; }
+.blank-schedule-options .bi { color: var(--mp-teal-dark); }
+.blank-schedule-tool .btn { margin-top: auto; }
+#blankHomeworkSettings { padding: 0 0 1rem; border-bottom: 1px solid var(--mp-border); }
+#blankHomeworkSettings[hidden] { display: none !important; }
+#homeworkScheduleModal .form-text { font-size: .875rem; }
+#homeworkScheduleModal .modal-footer .btn { min-height: 44px; }
+@media (max-width: 767px) {
+    .start-tools { grid-template-columns: 1fr; gap: 1rem; }
+    .start-tool .card-body { padding: 1.25rem; }
+}
+
 /* Rehberde yalnızca seçilen adım görünür; gezinme düğmeleri sabit kalır. */
+body { padding-top: 1rem; }
+.header-section { padding: 1rem 0; margin-bottom: 1.25rem; }
+.header-title { font-size: 1.65rem; margin-bottom: .35rem; }
+.header-subtitle { font-size: 1rem; }
+.start-tools { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.start-tool .card-body { padding: 1.1rem; }
+.start-tool h2 { margin-bottom: .75rem; }
+.start-tool .tool-kicker { margin-bottom: .4rem; }
+.start-tool #upload-area { padding: .85rem; }
+.start-tool #upload-area .fs-1 { font-size: 1.75rem !important; }
+.start-tool .guide-link { font-size: .875rem; }
+.blank-schedule-tool .btn { margin-top: .25rem; }
+.entry-methods { display: flex; gap: .25rem; padding: .25rem; margin-bottom: .85rem; border-radius: .6rem; background: #f0f5f2; }
+.entry-methods .entry-method { flex: 1; min-height: 40px; font-size: .875rem; font-weight: 600; color: var(--mp-muted); border: 1px solid transparent; }
+.entry-methods .entry-method.active { color: var(--mp-teal-dark); background: #fff; border-color: var(--mp-border); box-shadow: 0 1px 3px rgba(25, 43, 37, .08); }
+.entry-method:focus-visible { outline: 2px solid var(--mp-teal-dark); outline-offset: 2px; }
+.student-entry-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .65rem .75rem; }
+.student-entry-grid .form-label { font-size: .875rem; margin-bottom: .25rem; }
+.student-entry-grid .form-control { min-height: 42px; font-size: 1rem; }
+.student-entry-grid [aria-invalid="true"] { border-color: #b42318; }
+.student-entry-actions { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .8rem; }
+.student-entry-actions .btn { flex-shrink: 0; font-size: .875rem; }
+.entry-status { color: var(--mp-teal-dark); font-size: .875rem; margin: 0; overflow-wrap: anywhere; }
+.entry-note { color: var(--mp-muted); font-size: .875rem; margin-top: .65rem; }
+#manualEntryPanel[hidden], #pdfEntryPanel[hidden] { display: none !important; }
+.class-header-top { flex-wrap: wrap; gap: .5rem; }
+.class-header-top .class-name { flex: 1 1 150px; }
+.class-header-top .add-to-class { min-height: 40px; color: var(--mp-teal-dark); font-size: .875rem; white-space: nowrap; }
+.results-hint, .results-privacy, .stat-label { font-size: .875rem; }
+@media (max-width: 767px) {
+    .start-tools { grid-template-columns: 1fr; }
+    .header-title { font-size: 1.4rem; }
+    .header-subtitle { font-size: .95rem; }
+}
+@media (max-width: 360px) {
+    .student-entry-grid { grid-template-columns: 1fr; }
+    .student-entry-actions { flex-wrap: wrap; }
+}
+
 #pdfGuideModal .modal-dialog {
     width: calc(100% - 24px);
     max-width: 1200px;

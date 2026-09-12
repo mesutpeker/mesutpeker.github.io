@@ -4,46 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
-    <title>Öğrenci Listesi Çıkarıcı</title>
+    <title>Öğrenci Listesi ve Çizelge Araçları</title>
     <link href="vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.css">
     <!-- Kendi CSS dosyalarımız -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/print.css">
-    <link rel="stylesheet" href="css/site-theme.css" media="screen">
+    <link rel="stylesheet" href="css/site-theme.css?v=manual-students-20260911" media="screen">
 </head>
 <body>
     <div class="header-section">
         <div class="container">
-            <h1 class="text-center header-title">Öğrenci Listesi Çıkarıcı</h1>
-            <p class="text-center header-subtitle">PDF dosyalarından kolayca öğrenci listelerini çıkarın</p>
+            <h1 class="text-center header-title">Öğrenci Listesi ve Çizelge Araçları</h1>
+            <p class="text-center header-subtitle">E-Okul PDF’sini yükleyin, sınıf listenizi ve çizelgenizi hazırlayın.</p>
         </div>
     </div>
 
     <div class="container">
-        <div class="card mb-4">
+        <div class="start-tools">
+        <section class="card start-tool" aria-labelledby="pdfToolTitle">
             <div class="card-body">
-                <div class="alert alert-info mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="alert-heading h5 mb-0">E-Okul'dan PDF İndirme Adımları:</h2>
-                        <button type="button" class="btn btn-warning btn-lg pulse-btn fw-bold shadow" data-bs-toggle="modal" data-bs-target="#pdfGuideModal">
-                            <i class="bi bi-question-circle-fill"></i> Nasıl İndirilir?
-                        </button>
-                    </div>
-                    <ol>
-                        <li>https://e-okul.meb.gov.tr adresinden giriş yapın.</li>
-                        <li>Sol Menüden "Öğrenci İşlemleri"ne gidin.</li>
-                        <li>Raporlar kısmından "Şube Listesi (Öğrenci No Sıralı)" seçin.</li>
-                        <li>Listeyi görüntüleyin ve PDF olarak indirin.</li>
-                        <li>İndirdiğiniz dosyayı aşağıdaki alana yükleyin.</li>
-                    </ol>
+                <h2 class="h5" id="pdfToolTitle">Sınıf Listesi</h2>
+                <div class="entry-methods" role="group" aria-label="Liste oluşturma yöntemi">
+                    <button type="button" class="btn entry-method active" id="pdfEntryBtn" aria-pressed="true" aria-controls="pdfEntryPanel">PDF yükle</button>
+                    <button type="button" class="btn entry-method" id="manualEntryBtn" aria-pressed="false" aria-controls="manualEntryPanel">Öğrenci ekleme</button>
                 </div>
-                
+                <div id="manualEntryPanel" hidden>
+                    <form id="manualStudentForm" novalidate>
+                        <fieldset id="manualStudentFields">
+                            <legend class="visually-hidden">Öğrenci ekle</legend>
+                            <div class="student-entry-grid">
+                                <div>
+                                    <label for="manualClassName" class="form-label">Sınıf / Şube</label>
+                                    <input id="manualClassName" class="form-control" placeholder="Örn. 5/A" list="manualClassOptions" maxlength="80" required autocomplete="off">
+                                    <datalist id="manualClassOptions"></datalist>
+                                </div>
+                                <div>
+                                    <label for="manualStudentNo" class="form-label">No <span class="text-muted">(isteğe bağlı)</span></label>
+                                    <input id="manualStudentNo" class="form-control" placeholder="Örn. 123" inputmode="numeric" maxlength="15" autocomplete="off">
+                                </div>
+                                <div>
+                                    <label for="manualFirstName" class="form-label">Adı</label>
+                                    <input id="manualFirstName" class="form-control" maxlength="80" required autocomplete="off">
+                                </div>
+                                <div>
+                                    <label for="manualLastName" class="form-label">Soyadı</label>
+                                    <input id="manualLastName" class="form-control" maxlength="80" required autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="student-entry-actions">
+                                <p id="manualStudentStatus" class="entry-status" role="status" aria-live="polite"></p>
+                                <button type="submit" class="btn btn-primary" id="addManualStudentBtn"><i class="bi bi-plus-lg" aria-hidden="true"></i> Öğrenci Ekle</button>
+                            </div>
+                        </fieldset>
+                        <p id="manualStudentError" class="alert alert-danger py-2 mt-2 mb-0" role="alert" hidden></p>
+                    </form>
+                    <p class="entry-note mb-0">Listeler bu oturumda tutulur; sayfa yenilenince silinir.</p>
+                </div>
+                <div id="pdfEntryPanel">
                 <button type="button" id="upload-area" class="upload-button mb-3" aria-describedby="privacy-summary library-status" disabled>
                     <span id="upload-text">
-                        <i class="bi bi-cloud-arrow-up fs-1 mb-3" style="color: #6c63ff;"></i>
-                        <span class="upload-title mb-2">PDF Dosyanızı Yükleyin</span>
-                        <span class="mb-0 text-muted">PDF dosyasını seçmek için tıklayın veya sürükleyip bırakın</span>
+                        <i class="bi bi-cloud-arrow-up fs-1 mb-2" aria-hidden="true"></i>
+                        <span class="upload-title mb-2">PDF Dosyası Seç</span>
+                        <span class="mb-0 text-muted">veya dosyanızı buraya sürükleyin</span>
                     </span>
                 </button>
                 <input type="file" id="pdf-file" accept=".pdf,application/pdf" class="hidden" aria-label="PDF dosyası seçin">
@@ -56,11 +79,27 @@
                     <progress id="processing-progress" max="100" value="0" aria-label="PDF işleme ilerlemesi"></progress>
                     <button type="button" class="btn btn-outline-danger btn-sm mt-2" id="cancelProcessingBtn">İptal</button>
                 </div>
-                <p id="privacy-summary" class="privacy-note text-center"><i class="bi bi-shield-check" aria-hidden="true"></i> PDF yalnızca bu cihazda işlenir; öğrenci verileri bir sunucuya gönderilmez.</p>
-                <p id="error-message" class="alert alert-danger text-center hidden" role="alert" aria-live="assertive"></p>
-                <pre id="debug-info" class="debug-info" hidden></pre>
+                <button type="button" class="btn btn-outline-primary guide-link" data-bs-toggle="modal" data-bs-target="#pdfGuideModal">
+                    <i class="bi bi-question-circle" aria-hidden="true"></i> E-Okul’dan PDF nasıl indirilir?
+                </button>
+                <p id="privacy-summary" class="privacy-note mt-2 mb-0"><i class="bi bi-shield-check" aria-hidden="true"></i> PDF yalnızca bu cihazda işlenir. Elle eklenen öğrenciler korunur.</p>
+                </div>
             </div>
+        </section>
+        <section class="card start-tool blank-schedule-tool" aria-labelledby="blankToolTitle">
+            <div class="card-body">
+                <span class="tool-kicker">İsimsiz çıktı</span>
+                <h2 class="h5" id="blankToolTitle">Boş Ödev Çizelgesi</h2>
+                <p class="text-muted">İsim alanları boş, günlük veya haftalık bir çizelge yazdırın.</p>
+                <p class="entry-note">1–100 satır · Günlük / haftalık · A4 yatay</p>
+                <button type="button" class="btn btn-primary" id="blankHomeworkScheduleBtn">
+                    <i class="bi bi-table" aria-hidden="true"></i> Boş Çizelge Hazırla
+                </button>
+            </div>
+        </section>
         </div>
+        <p id="error-message" class="alert alert-danger text-center hidden" role="alert" aria-live="assertive"></p>
+        <pre id="debug-info" class="debug-info" hidden></pre>
         
         <div id="results-container">
             <!-- Sınıf kartları buraya eklenecek -->
@@ -86,7 +125,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="editStudentNo" class="form-label">Öğrenci No</label>
+                        <label for="editStudentNo" class="form-label">Öğrenci No <span class="text-muted">(isteğe bağlı)</span></label>
                         <input type="text" inputmode="numeric" class="form-control" id="editStudentNo" maxlength="15">
                     </div>
                     <div class="mb-3">
@@ -98,6 +137,7 @@
                         <input type="text" class="form-control" id="editStudentLastName" maxlength="80">
                     </div>
                 </div>
+                <p id="editStudentError" class="alert alert-danger mx-3" role="alert" hidden></p>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-outline-danger" id="deleteStudentBtn">Öğrenciyi Sil</button>
                     <div class="d-flex gap-2">
@@ -160,10 +200,30 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1)"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="homeworkStudentMode" class="form-label">Öğrenci Bilgileri</label>
+                            <select class="form-select" id="homeworkStudentMode">
+                                <option value="class" id="homeworkClassModeOption">Sınıf listesini kullan</option>
+                                <option value="blank">İsim ve numaraları boş bırak</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3" id="blankHomeworkSettings" hidden>
+                        <div class="col-md-4">
+                            <label for="blankHomeworkRowCount" class="form-label">Boş Satır Sayısı</label>
+                            <input type="number" class="form-control" id="blankHomeworkRowCount" min="1" max="100" step="1" value="30" required aria-describedby="blankHomeworkRowHelp">
+                            <div class="form-text" id="blankHomeworkRowHelp">1–100 satır. Uzun çizelgeler sonraki sayfada devam eder.</div>
+                        </div>
+                        <div class="col-md-8">
+                            <label for="blankHomeworkClassName" class="form-label">Sınıf / Şube <span class="text-muted">(isteğe bağlı)</span></label>
+                            <input type="text" class="form-control" id="blankHomeworkClassName" placeholder="Örn. 5/A" maxlength="80">
+                        </div>
+                    </div>
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="scheduleTitle" class="form-label">Çizelge Başlığı</label>
-                            <input type="text" class="form-control" id="scheduleTitle" placeholder="Ödev Çizelgesi">
+                            <input type="text" class="form-control" id="scheduleTitle" placeholder="Ödev Çizelgesi" maxlength="120">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -234,6 +294,7 @@
                             <input type="date" class="form-control" id="endDate">
                         </div>
                     </div>
+                    <p id="homeworkScheduleError" class="alert alert-danger" role="alert" hidden></p>
                     <div id="schedulePreview" class="my-3 table-responsive" style="max-height: 60vh; overflow-y: auto;">
                         <p class="text-center">Tarih aralığı seçin ve "Oluştur" butonuna tıklayın.</p>
                     </div>
@@ -415,9 +476,10 @@
     <script src="vendor/pdfjs/pdf.worker.min.js"></script>
     <script src="js/pdfjs-loader.js"></script>
     <script src="js/pdf-parser-core.js?v=class-headings-20260908"></script>
-    <script src="js/main.js?v=guide-steps-20260908"></script>
-    <script src="js/pdf-processing.js?v=class-headings-20260908"></script>
-    <script src="js/homework.js"></script>
+    <script src="js/main.js?v=manual-students-20260911"></script>
+    <script src="js/pdf-processing.js?v=manual-students-20260911"></script>
+    <script src="js/manual-students.js?v=manual-students-20260911"></script>
+    <script src="js/homework.js?v=blank-schedule-20260911"></script>
     <script src="js/seating-plan.js"></script>
 </body>
 </html> 

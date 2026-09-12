@@ -106,6 +106,7 @@ function displayClassesAndStudents(classes, summary = latestExtractionSummary) {
     initializeStudentEditor();
     const resultsContainer = document.getElementById('results-container');
     resultsContainer.replaceChildren();
+    refreshManualClassOptions();
 
     const classEntries = Object.entries(classes).filter(([, students]) => students.length > 0);
     if (classEntries.length === 0) return;
@@ -118,7 +119,7 @@ function createExtractionSummary(classEntries, summary) {
     const panel = createElement('section', 'results-summary');
     panel.setAttribute('aria-labelledby', 'results-summary-title');
 
-    const title = createElement('h2', 'results-summary-title', 'İşlem Tamamlandı');
+    const title = createElement('h2', 'results-summary-title', 'Sınıf Listeleriniz');
     title.id = 'results-summary-title';
     const titleIcon = createIcon('bi bi-check-circle-fill');
     title.prepend(titleIcon);
@@ -166,6 +167,10 @@ function createClassCard(className, students) {
     const badge = createElement('span', 'class-badge', `${students.length} öğrenci`);
     titleRow.appendChild(title);
     titleRow.appendChild(badge);
+    titleRow.appendChild(createButton({
+        label: 'Öğrenci Ekle', icon: 'bi bi-person-plus', className: 'btn btn-light btn-sm add-to-class',
+        onClick: () => openManualStudentEntry(className)
+    }));
     header.appendChild(titleRow);
 
     /* Kopyalama butonları grubu */
@@ -256,6 +261,7 @@ function openStudentEditor(className, index) {
     const student = classesByName[className]?.[index];
     if (!student) return;
     editingStudentContext = { className, index };
+    document.getElementById('editStudentError').hidden = true;
     document.getElementById('editStudentClass').textContent = className;
     document.getElementById('editStudentNo').value = student.student_no;
     document.getElementById('editStudentFirstName').value = student.first_name;
@@ -266,20 +272,22 @@ function openStudentEditor(className, index) {
 function saveStudentEdit() {
     if (!editingStudentContext) return;
     const { className, index } = editingStudentContext;
-    const studentNumber = PdfParserCore.normalizeStudentNumber(document.getElementById('editStudentNo').value);
-    const firstName = PdfParserCore.normalizeName(document.getElementById('editStudentFirstName').value);
-    const lastName = PdfParserCore.normalizeName(document.getElementById('editStudentLastName').value);
-    if (!studentNumber || !firstName || !lastName) {
-        showError('Öğrenci numarası, adı ve soyadı boş bırakılamaz.', { persistent: true });
+    const validation = validateManualStudent({
+        className,
+        studentNumber: document.getElementById('editStudentNo').value,
+        firstName: document.getElementById('editStudentFirstName').value,
+        lastName: document.getElementById('editStudentLastName').value
+    }, { [className]: classesByName[className].filter((_, studentIndex) => studentIndex !== index) });
+    if (validation.error) {
+        const error = document.getElementById('editStudentError');
+        error.textContent = validation.error;
+        error.hidden = false;
         return;
     }
-    const duplicate = classesByName[className].some((student, studentIndex) => studentIndex !== index && student.student_no === studentNumber);
-    if (duplicate) {
-        showError(`${studentNumber} öğrenci numarası bu sınıfta zaten kullanılıyor.`, { persistent: true });
-        return;
-    }
+    const { student_no: studentNumber, first_name: firstName, last_name: lastName } = validation.student;
     classesByName[className][index] = { ...classesByName[className][index], student_no: studentNumber, first_name: firstName, last_name: lastName, confidence: 'verified', warnings: [] };
     bootstrap.Modal.getInstance(document.getElementById('editStudentModal'))?.hide();
+    resetFeatureStates();
     displayClassesAndStudents(classesByName, latestExtractionSummary);
 }
 
@@ -287,7 +295,9 @@ function deleteEditingStudent() {
     if (!editingStudentContext) return;
     const { className, index } = editingStudentContext;
     classesByName[className].splice(index, 1);
+    if (classesByName[className].length === 0) delete classesByName[className];
     bootstrap.Modal.getInstance(document.getElementById('editStudentModal'))?.hide();
+    resetFeatureStates();
     displayClassesAndStudents(classesByName, latestExtractionSummary);
 }
 

@@ -1,3 +1,6 @@
+// Boş çizelge, yüklenmiş sınıf listesini veya diğer araçların seçimini değiştirmez.
+let homeworkClassName = null;
+
 // Varsayılan tarih değerlerini ayarlama
 function setDefaultDates() {
     const today = new Date();
@@ -9,9 +12,16 @@ function setDefaultDates() {
     document.getElementById('endDate').valueAsDate = endDate;
 }
 
-function prepareHomeworkModal(className) {
+function prepareHomeworkModal(className = null) {
+    homeworkClassName = className;
     resetHomeworkState();
-    document.getElementById('homeworkScheduleModalLabel').textContent = `${className} - Ödev Çizelgesi`;
+    document.getElementById('homeworkScheduleModalLabel').textContent = className
+        ? `${className} - Ödev Çizelgesi` : 'Boş Ödev Çizelgesi';
+    document.getElementById('homeworkClassModeOption').disabled = !className;
+    document.getElementById('homeworkStudentMode').value = className ? 'class' : 'blank';
+    document.getElementById('blankHomeworkRowCount').value = String(Math.min(100, classesByName[className]?.length || 30));
+    document.getElementById('blankHomeworkClassName').value = className || '';
+    updateHomeworkStudentMode();
     document.getElementById('scheduleTitle').value = '';
     document.getElementById('weeklySchedule').checked = true;
     document.getElementById('dailySchedule').checked = false;
@@ -22,6 +32,44 @@ function prepareHomeworkModal(className) {
     setDefaultDates();
 }
 
+function updateHomeworkStudentMode() {
+    document.getElementById('blankHomeworkSettings').hidden = !isBlankHomeworkSchedule();
+}
+
+function isBlankHomeworkSchedule() {
+    return document.getElementById('homeworkStudentMode').value === 'blank';
+}
+
+function getHomeworkClassLabel() {
+    return isBlankHomeworkSchedule()
+        ? document.getElementById('blankHomeworkClassName').value.trim()
+        : homeworkClassName;
+}
+
+function showHomeworkError(message) {
+    const error = document.getElementById('homeworkScheduleError');
+    error.textContent = message;
+    error.hidden = false;
+}
+
+function getHomeworkStudents() {
+    if (isBlankHomeworkSchedule()) {
+        const rowCount = Number(document.getElementById('blankHomeworkRowCount').value);
+        if (!Number.isInteger(rowCount) || rowCount < 1 || rowCount > 100) {
+            showHomeworkError('Boş satır sayısı 1 ile 100 arasında bir tam sayı olmalıdır.');
+            return null;
+        }
+        return Array.from({ length: rowCount }, () => ({ student_no: '', first_name: '', last_name: '' }));
+    }
+
+    const students = classesByName[homeworkClassName];
+    if (!students || students.length === 0) {
+        showHomeworkError('Bu sınıfta öğrenci bulunamadı. Boş çizelge seçeneğini kullanabilirsiniz.');
+        return null;
+    }
+    return students;
+}
+
 function resetHomeworkState() {
     const preview = document.getElementById('schedulePreview');
     if (preview) preview.replaceChildren(Object.assign(document.createElement('p'), {
@@ -30,6 +78,11 @@ function resetHomeworkState() {
     }));
     const printButton = document.getElementById('printScheduleBtn');
     if (printButton) printButton.disabled = true;
+    const error = document.getElementById('homeworkScheduleError');
+    if (error) {
+        error.hidden = true;
+        error.textContent = '';
+    }
     document.getElementById('homeworkSchedulePrint')?.remove();
 }
 
@@ -94,16 +147,18 @@ function runPrintJob(printSection, { removeAfter = false } = {}) {
 
 // Ödev çizelgesi oluşturma
 function generateHomeworkSchedule(startDate, endDate, forPrint = false) {
-    console.log('Çizelge oluşturuluyor:', startDate, endDate);
-
-    // Öğrenci listesini al
-    const students = classesByName[currentScheduleClass];
-    if (!students || students.length === 0) {
-        showError('Bu sınıfta öğrenci bulunamadı.');
+    resetHomeworkState();
+    if (!(startDate instanceof Date) || !(endDate instanceof Date) || isNaN(startDate) || isNaN(endDate)) {
+        showHomeworkError('Lütfen geçerli bir tarih aralığı seçin.');
+        return;
+    }
+    if (startDate > endDate) {
+        showHomeworkError('Başlangıç tarihi bitiş tarihinden sonra olamaz.');
         return;
     }
 
-    console.log('Öğrenci sayısı:', students.length);
+    const students = getHomeworkStudents();
+    if (!students) return;
 
     // Çizelge türünü kontrol et
     const scheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
@@ -119,7 +174,7 @@ function generateHomeworkSchedule(startDate, endDate, forPrint = false) {
     }
 
     if (periods.length === 0) {
-        showError(`Seçilen tarih aralığında ${scheduleType === 'weekly' ? 'hafta' : 'gün'} bulunamadı.`);
+        showHomeworkError(`Seçilen tarih aralığında ${scheduleType === 'weekly' ? 'hafta' : 'gün'} bulunamadı. Tarihleri ve gün seçimini kontrol edin.`);
         return;
     }
 
@@ -131,23 +186,17 @@ function generateHomeworkSchedule(startDate, endDate, forPrint = false) {
     // Önizleme için tabloyu oluştur
     const scheduleTable = createScheduleTable(students, periods, scheduleType);
 
-    // Eğer yazdırma için değilse, önizleme alanını güncelle
-    if (!forPrint) {
-        const previewArea = document.getElementById('schedulePreview');
-        previewArea.replaceChildren();
-
-        // Önizleme için uyarı notu
-        const previewNote = createPreviewNote(
-            'alert alert-info mb-2',
-            'bi bi-info-circle',
-            'Çizelge A4 yatay olarak yazdırılır. Uzun öğrenci listeleri, sütun başlıkları tekrarlanarak sonraki sayfada devam eder.'
-        );
-        previewArea.appendChild(previewNote);
-        previewArea.appendChild(scheduleTable.cloneNode(true));
-    }
+    // Yazdırma sırasında da önizlemeyi güncel tut.
+    const previewArea = document.getElementById('schedulePreview');
+    const previewNote = createPreviewNote(
+        'alert alert-info mb-2',
+        'bi bi-info-circle',
+        'Çizelge A4 yatay olarak yazdırılır. Yazdırma penceresinde PDF olarak da kaydedebilirsiniz. Uzun çizelgeler, sütun başlıkları tekrarlanarak sonraki sayfada devam eder.'
+    );
+    previewArea.replaceChildren(previewNote, scheduleTable.cloneNode(true));
 
     // Yazdırma için tabloyu oluştur
-    const printSection = createPrintableVersion(currentScheduleClass, scheduleTable.cloneNode(true));
+    const printSection = createPrintableVersion(getHomeworkClassLabel(), scheduleTable.cloneNode(true));
 
     // Var olan yazdırma alanını temizle
     const oldPrintArea = document.getElementById('homeworkSchedulePrint');
@@ -175,13 +224,11 @@ function generateMultiPageSchedule(students, periods, scheduleType, forPrint = f
     printSection.id = 'homeworkSchedulePrint';
     const previewArea = document.getElementById('schedulePreview');
 
-    if (!forPrint) {
-        previewArea.replaceChildren(createPreviewNote(
-            'alert alert-info mb-2',
-            'bi bi-info-circle',
-            `Çizelge ${pageCount} bölüm halinde yazdırılacak. Uzun öğrenci listeleri sonraki sayfada devam eder.`
-        ));
-    }
+    previewArea.replaceChildren(createPreviewNote(
+        'alert alert-info mb-2',
+        'bi bi-info-circle',
+        `Çizelge ${pageCount} bölüm halinde yazdırılacak. Uzun çizelgeler sonraki sayfada devam eder. Yazdırma penceresinde PDF olarak da kaydedebilirsiniz.`
+    ));
 
     for (let offset = 0; offset < periods.length; offset += periodsPerPage) {
         const pagePeriods = periods.slice(offset, offset + periodsPerPage);
@@ -189,13 +236,11 @@ function generateMultiPageSchedule(students, periods, scheduleType, forPrint = f
         const unit = scheduleType === 'weekly' ? 'Hafta' : 'Gün';
         const sectionTitle = `${offset + 1}-${offset + pagePeriods.length}. ${unit}`;
 
-        if (!forPrint) {
-            const title = document.createElement('h6');
-            title.className = 'mt-3 mb-2';
-            title.textContent = sectionTitle;
-            previewArea.append(title, table.cloneNode(true));
-        }
-        printSection.appendChild(createSchedulePrintPage(currentScheduleClass, table, sectionTitle));
+        const title = document.createElement('h6');
+        title.className = 'mt-3 mb-2';
+        title.textContent = sectionTitle;
+        previewArea.append(title, table.cloneNode(true));
+        printSection.appendChild(createSchedulePrintPage(getHomeworkClassLabel(), table, sectionTitle));
     }
 
     document.getElementById('homeworkSchedulePrint')?.remove();
@@ -300,7 +345,7 @@ function getDaysInRange(startDate, endDate) {
     });
     
     if (selectedDays.length === 0) {
-        showError('Lütfen en az bir gün seçin.');
+        showHomeworkError('Lütfen en az bir gün seçin.');
         return days;
     }
     
@@ -461,7 +506,7 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
 
         // Öğrenci adı sütunu
         const tdName = document.createElement('td');
-        tdName.textContent = `${student.first_name} ${student.last_name}`;
+        tdName.textContent = `${student.first_name} ${student.last_name}`.trim();
         tdName.style.width = `${studentNameColumnWidth}%`;
         tdName.style.minWidth = `${studentNameColumnWidth}%`;
         tdName.style.maxWidth = `${studentNameColumnWidth}%`;
@@ -475,7 +520,7 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
         tdName.style.fontWeight = 'bold';
         tdName.style.borderLeft = '1px solid black';
         tdName.style.borderRight = '2px solid black';
-        tdName.title = `${student.first_name} ${student.last_name}`;
+        tdName.title = tdName.textContent;
         
         // Son satır için alt kenarlık
         if (index === students.length - 1) {
@@ -526,7 +571,7 @@ function createSchedulePrintPage(className, table, sectionTitle = '') {
 
     const title = document.createElement('h3');
     const customTitle = document.getElementById('scheduleTitle').value.trim() || 'Ödev Çizelgesi';
-    title.textContent = `${className} - ${customTitle}${sectionTitle ? ` (${sectionTitle})` : ''}`;
+    title.textContent = `${className ? `${className} - ` : ''}${customTitle}${sectionTitle ? ` (${sectionTitle})` : ''}`;
     table.className = 'homework-print-table';
     page.append(title, table);
     return page;
@@ -541,19 +586,8 @@ function createPrintableVersion(className, table) {
 
 // Yazdırma işlemi
 document.getElementById('printScheduleBtn').addEventListener('click', function() {
-    // Önce tarihleri kontrol et
     const startDate = document.getElementById('startDate').valueAsDate;
     const endDate = document.getElementById('endDate').valueAsDate;
-    
-    if (!startDate || !endDate) {
-        showError('Lütfen geçerli bir tarih aralığı seçin.');
-        return;
-    }
-    
-    if (startDate > endDate) {
-        showError('Başlangıç tarihi bitiş tarihinden sonra olamaz.');
-        return;
-    }
     
     // Yazdırma için yeni çizelge oluştur (forPrint=true)
     const generatedPrintArea = generateHomeworkSchedule(startDate, endDate, true);
@@ -908,19 +942,20 @@ function createCustomPrintableVersion(className, table) {
 
 // Özel çizelge event listener'ları (DOMContentLoaded event'i içinde çalışacak)
 document.addEventListener('DOMContentLoaded', function() {
+    const homeworkModal = document.getElementById('homeworkScheduleModal');
+    const invalidateHomeworkPreview = () => {
+        updateHomeworkStudentMode();
+        document.getElementById('daySelectionArea').style.display = document.getElementById('dailySchedule').checked ? '' : 'none';
+        resetHomeworkState();
+    };
+    homeworkModal.addEventListener('input', invalidateHomeworkPreview);
+    homeworkModal.addEventListener('change', invalidateHomeworkPreview);
+
     const generateScheduleButton = document.getElementById('generateScheduleBtn');
     if (generateScheduleButton) {
         generateScheduleButton.addEventListener('click', function() {
             const startDate = document.getElementById('startDate').valueAsDate;
             const endDate = document.getElementById('endDate').valueAsDate;
-            if (!startDate || !endDate) {
-                showError('Lütfen geçerli bir tarih aralığı seçin.');
-                return;
-            }
-            if (startDate > endDate) {
-                showError('Başlangıç tarihi bitiş tarihinden sonra olamaz.');
-                return;
-            }
             generateHomeworkSchedule(startDate, endDate);
         });
     }
