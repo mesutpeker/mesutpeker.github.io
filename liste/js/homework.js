@@ -414,7 +414,7 @@ function createScheduleTable(students, periods, scheduleType, weekStartNumber = 
 
     // Öğrenci numarası sütunu
     const thStudentNo = document.createElement('th');
-    thStudentNo.textContent = 'ÖĞRENCİ NO';
+    thStudentNo.textContent = 'Öğr. No';
     thStudentNo.style.width = `${studentNoColumnWidth}%`; // Öğrenci no için daha dar
     thStudentNo.style.minWidth = `${studentNoColumnWidth}%`;
     thStudentNo.style.maxWidth = `${studentNoColumnWidth}%`;
@@ -731,7 +731,7 @@ function createCustomScheduleTable(students, columnHeaders) {
     
     // Öğrenci numarası sütunu
     const thStudentNo = document.createElement('th');
-    thStudentNo.textContent = 'ÖĞRENCİ NO';
+    thStudentNo.textContent = 'Öğr. No';
     thStudentNo.style.width = `${studentNoColumnWidth}%`;
     thStudentNo.style.minWidth = `${studentNoColumnWidth}%`;
     thStudentNo.style.maxWidth = `${studentNoColumnWidth}%`;
