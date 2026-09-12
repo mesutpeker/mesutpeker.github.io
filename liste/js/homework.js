@@ -62,7 +62,7 @@ function prepareHomeworkModal(className = null) {
         ? `${className} - Ödev Çizelgesi` : 'Boş Ödev Çizelgesi';
     document.getElementById('homeworkClassModeOption').disabled = !className;
     document.getElementById('homeworkStudentMode').value = className ? 'class' : 'blank';
-    document.getElementById('blankHomeworkRowCount').value = String(Math.min(100, classesByName[className]?.length || 30));
+    document.getElementById('blankHomeworkRowCount').value = String(Math.min(100, classesByName[className]?.length || 25));
     document.getElementById('blankHomeworkClassName').value = className || '';
     updateHomeworkStudentMode();
     document.getElementById('scheduleTitle').value = '';
@@ -570,9 +570,11 @@ function createSchedulePrintPage(className, table, sectionTitle = '') {
     page.className = 'schedule-print-page';
     const columnCount = table.querySelectorAll('thead th').length - 2;
     const rowCount = table.querySelectorAll('tbody tr').length;
-    // Leave room for the title and date headers on A4 landscape. Longer
-    // lists keep usable row heights and continue with repeated headers.
-    page.style.setProperty('--schedule-row-height', `${Math.max(18, Math.min(25, Math.floor(600 / Math.max(1, rowCount))))}px`);
+    // A4 yatay: öğrenci satırları için 140 mm ayır; tarih başlıkları,
+    // uzun çizelge adları ve yazıcı kenar boşlukları için pay bırak.
+    // Çok uzun listeler okunabilir satırlarla sonraki sayfada devam eder.
+    const rowHeightMm = Math.max(4, Math.min(6, Math.floor(14000 / Math.max(1, rowCount)) / 100));
+    page.style.setProperty('--schedule-row-height', `${rowHeightMm}mm`);
     page.classList.add(columnCount <= 5 ? 'cols-1-5' : columnCount <= 10 ? 'cols-6-10' : columnCount <= 15 ? 'cols-11-15' : 'cols-16-20');
     page.classList.add(rowCount <= 15 ? 'rows-1-15' : rowCount <= 30 ? 'rows-16-30' : 'rows-31-plus');
 
