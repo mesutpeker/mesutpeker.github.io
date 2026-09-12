@@ -10,7 +10,7 @@
     <!-- Kendi CSS dosyalarımız -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/print.css">
-    <link rel="stylesheet" href="css/site-theme.css?v=term-buttons-20260912" media="screen">
+    <link rel="stylesheet" href="css/site-theme.css?v=compact-homework-20260912" media="screen">
 </head>
 <body>
     <div class="header-section">
@@ -193,42 +193,40 @@
 
     <!-- Ödev Çizelgesi Modal -->
     <div class="modal fade" id="homeworkScheduleModal" tabindex="-1" aria-labelledby="homeworkScheduleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: #6a3de8; color: white;">
                     <h2 class="modal-title h5" id="homeworkScheduleModalLabel">Ödev Çizelgesi</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1)"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
+                    <div class="row g-2 mb-2">
+                        <div class="col-sm-6">
                             <label for="homeworkStudentMode" class="form-label">Öğrenci Bilgileri</label>
                             <select class="form-select" id="homeworkStudentMode">
                                 <option value="class" id="homeworkClassModeOption">Sınıf listesini kullan</option>
                                 <option value="blank">İsim ve numaraları boş bırak</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="row g-3 mb-3" id="blankHomeworkSettings" hidden>
-                        <div class="col-md-4">
-                            <label for="blankHomeworkRowCount" class="form-label">Boş Satır Sayısı</label>
-                            <input type="number" class="form-control" id="blankHomeworkRowCount" min="1" max="100" step="1" value="30" required aria-describedby="blankHomeworkRowHelp">
-                            <div class="form-text" id="blankHomeworkRowHelp">1–100 satır. Uzun çizelgeler sonraki sayfada devam eder.</div>
-                        </div>
-                        <div class="col-md-8">
-                            <label for="blankHomeworkClassName" class="form-label">Sınıf / Şube <span class="text-muted">(isteğe bağlı)</span></label>
-                            <input type="text" class="form-control" id="blankHomeworkClassName" placeholder="Örn. 5/A" maxlength="80">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
+                        <div class="col-sm-6">
                             <label for="scheduleTitle" class="form-label">Çizelge Başlığı</label>
                             <input type="text" class="form-control" id="scheduleTitle" placeholder="Ödev Çizelgesi" maxlength="120">
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Çizelge Türü</label>
+                    <div class="row g-2 mb-2" id="blankHomeworkSettings" hidden>
+                        <div class="col-4">
+                            <label for="blankHomeworkRowCount" class="form-label">Boş Satır Sayısı</label>
+                            <input type="number" class="form-control" id="blankHomeworkRowCount" min="1" max="100" step="1" value="30" required aria-describedby="blankHomeworkRowHelp">
+                            <div class="form-text" id="blankHomeworkRowHelp">1–100 satır.</div>
+                        </div>
+                        <div class="col-8">
+                            <label for="blankHomeworkClassName" class="form-label">Sınıf / Şube <span class="text-muted">(isteğe bağlı)</span></label>
+                            <input type="text" class="form-control" id="blankHomeworkClassName" placeholder="Örn. 5/A" maxlength="80">
+                        </div>
+                    </div>
+                    <div class="homework-schedule-type mb-2" role="group" aria-labelledby="homeworkScheduleTypeLabel">
+                        <span class="form-label" id="homeworkScheduleTypeLabel">Çizelge Türü</span>
+                        <div class="d-flex gap-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="scheduleType" id="weeklySchedule" value="weekly" checked>
                                 <label class="form-check-label" for="weeklySchedule">
@@ -243,48 +241,40 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-3" id="daySelectionArea" style="display: none;">
-                        <div class="col-md-12">
-                            <label class="form-label">Gösterilecek Günler</label>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input day-checkbox" type="checkbox" id="monday" value="1" checked>
-                                        <label class="form-check-label" for="monday">Pazartesi</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input day-checkbox" type="checkbox" id="tuesday" value="2" checked>
-                                        <label class="form-check-label" for="tuesday">Salı</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input day-checkbox" type="checkbox" id="wednesday" value="3" checked>
-                                        <label class="form-check-label" for="wednesday">Çarşamba</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input day-checkbox" type="checkbox" id="thursday" value="4" checked>
-                                        <label class="form-check-label" for="thursday">Perşembe</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input day-checkbox" type="checkbox" id="friday" value="5" checked>
-                                        <label class="form-check-label" for="friday">Cuma</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input day-checkbox" type="checkbox" id="saturday" value="6">
-                                        <label class="form-check-label" for="saturday">Cumartesi</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input day-checkbox" type="checkbox" id="sunday" value="0">
-                                        <label class="form-check-label" for="sunday">Pazar</label>
-                                    </div>
-                                </div>
+                    <fieldset class="mb-2" id="daySelectionArea" style="display: none;">
+                        <legend class="form-label fs-6">Gösterilecek Günler</legend>
+                        <div class="homework-day-options">
+                            <div class="form-check">
+                                <input class="form-check-input day-checkbox" type="checkbox" id="monday" value="1" checked>
+                                <label class="form-check-label" for="monday">Pazartesi</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input day-checkbox" type="checkbox" id="tuesday" value="2" checked>
+                                <label class="form-check-label" for="tuesday">Salı</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input day-checkbox" type="checkbox" id="wednesday" value="3" checked>
+                                <label class="form-check-label" for="wednesday">Çarşamba</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input day-checkbox" type="checkbox" id="thursday" value="4" checked>
+                                <label class="form-check-label" for="thursday">Perşembe</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input day-checkbox" type="checkbox" id="friday" value="5" checked>
+                                <label class="form-check-label" for="friday">Cuma</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input day-checkbox" type="checkbox" id="saturday" value="6">
+                                <label class="form-check-label" for="saturday">Cumartesi</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input day-checkbox" type="checkbox" id="sunday" value="0">
+                                <label class="form-check-label" for="sunday">Pazar</label>
                             </div>
                         </div>
-                    </div>
-                    <fieldset class="mb-3" aria-describedby="homeworkCalendarHelp">
+                    </fieldset>
+                    <fieldset class="mb-2" aria-describedby="homeworkCalendarHelp">
                         <legend class="form-label fs-6">Tarih Aralığı <span class="text-muted">· 2026–2027</span></legend>
                         <div class="homework-term-options">
                             <input class="btn-check" type="radio" name="homeworkTerm" id="homeworkTermCustom" value="custom" checked>
@@ -295,23 +285,22 @@
                             <label class="btn btn-outline-primary" for="homeworkTermSecond">2. Dönem</label>
                         </div>
                         <div class="form-text" id="homeworkCalendarHelp">
-                            Dönem seçince tarihler otomatik doldurulur; isterseniz değiştirebilirsiniz.
-                            <a href="https://www.meb.gov.tr/2026-2027-egitim-ogretim-yili-takvimi-aciklandi/haber/41057/tr" target="_blank" rel="noopener noreferrer">MEB 2026–2027 takvimindeki</a>
-                            16–20 Kasım 2026 ve 8–12 Mart 2027 ara tatil haftaları, hafta sonlarıyla birlikte günlük ve haftalık çizelgelere dahil edilmez.
+                            Dönem seçince tarihler otomatik dolar. Ara tatil haftaları dahil edilmez.
+                            <a href="https://www.meb.gov.tr/2026-2027-egitim-ogretim-yili-takvimi-aciklandi/haber/41057/tr" target="_blank" rel="noopener noreferrer">MEB takvimi</a>
                         </div>
                     </fieldset>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
                             <label for="startDate" class="form-label">Başlangıç Tarihi</label>
                             <input type="date" class="form-control" id="startDate">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-6">
                             <label for="endDate" class="form-label">Bitiş Tarihi</label>
                             <input type="date" class="form-control" id="endDate">
                         </div>
                     </div>
                     <p id="homeworkScheduleError" class="alert alert-danger" role="alert" hidden></p>
-                    <div id="schedulePreview" class="my-3 table-responsive" style="max-height: 60vh; overflow-y: auto;">
+                    <div id="schedulePreview" class="homework-preview table-responsive" tabindex="0" role="region" aria-label="Çizelge önizlemesi">
                         <p class="text-center">Tarih aralığı seçin ve "Oluştur" butonuna tıklayın.</p>
                     </div>
                 </div>

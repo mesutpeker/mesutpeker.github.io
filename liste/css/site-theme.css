@@ -133,14 +133,33 @@ body {
 .blank-schedule-options li { display: flex; align-items: baseline; gap: .75rem; }
 .blank-schedule-options .bi { color: var(--mp-teal-dark); }
 .blank-schedule-tool .btn { margin-top: auto; }
-#blankHomeworkSettings { padding: 0 0 1rem; border-bottom: 1px solid var(--mp-border); }
+#blankHomeworkSettings { padding: 0 0 .5rem; border-bottom: 1px solid var(--mp-border); }
 #blankHomeworkSettings[hidden] { display: none !important; }
-#homeworkScheduleModal .form-text { font-size: .875rem; }
+#homeworkScheduleModal .modal-dialog { width: calc(100% - 24px); max-width: 720px; height: calc(100% - 24px); height: calc(100dvh - 24px); min-height: 0; margin: 12px auto; }
+#homeworkScheduleModal .modal-header, #homeworkScheduleModal .modal-footer { padding: .65rem .9rem; }
+#homeworkScheduleModal .modal-title { font-size: 1rem; }
+#homeworkScheduleModal .modal-body { padding: .85rem .9rem; }
+#homeworkScheduleModal .form-label { font-size: .875rem !important; margin-bottom: .25rem; }
+#homeworkScheduleModal .form-control, #homeworkScheduleModal .form-select { min-width: 0; min-height: 38px; font-size: .875rem; }
+#homeworkScheduleModal .form-text { font-size: .75rem; line-height: 1.4; }
 #homeworkScheduleModal .modal-footer .btn { min-height: 44px; }
+.homework-schedule-type { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; }
+#homeworkScheduleModal .homework-schedule-type .form-label { margin-bottom: 0; }
+#homeworkScheduleModal .form-check { margin-bottom: 0; font-size: .875rem; }
+.homework-day-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem .5rem; }
+.homework-preview { margin-top: .65rem; }
+.homework-preview > p { margin: .25rem 0; font-size: .8125rem; color: var(--mp-muted); }
+.homework-preview table { min-width: 820px; }
+.homework-preview .alert { padding: .5rem .65rem; }
+.homework-preview:focus-visible { outline: 2px solid var(--mp-teal-dark); outline-offset: 2px; }
 .homework-term-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
-.homework-term-options .btn { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: .6rem .4rem; font-size: .875rem; font-weight: 600; white-space: normal; }
+.homework-term-options .btn { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: .4rem; font-size: .875rem; font-weight: 600; white-space: normal; }
 .homework-term-options .btn-check:checked + .btn { color: #fff; background-color: var(--mp-teal-dark); border-color: var(--mp-teal-dark); }
 .homework-term-options .btn-check:focus + .btn { outline: 2px solid var(--mp-teal-dark); outline-offset: 3px; box-shadow: none; }
+@media (max-width: 575px) {
+    #homeworkScheduleModal .form-control, #homeworkScheduleModal .form-select { font-size: 1rem; }
+    .homework-day-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 @media (max-width: 767px) {
     .start-tools { grid-template-columns: 1fr; gap: 1rem; }
     .start-tool .card-body { padding: 1.25rem; }
