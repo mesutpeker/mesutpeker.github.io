@@ -284,6 +284,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label for="homeworkTerm" class="form-label">Tarih Aralığı</label>
+                        <select class="form-select" id="homeworkTerm" aria-describedby="homeworkCalendarHelp">
+                            <option value="custom">Özel tarih aralığı</option>
+                            <option value="first">2026–2027 · 1. Dönem</option>
+                            <option value="second">2026–2027 · 2. Dönem</option>
+                        </select>
+                        <div class="form-text" id="homeworkCalendarHelp">
+                            Dönem seçince tarihler otomatik doldurulur; isterseniz değiştirebilirsiniz.
+                            <a href="https://www.meb.gov.tr/2026-2027-egitim-ogretim-yili-takvimi-aciklandi/haber/41057/tr" target="_blank" rel="noopener noreferrer">MEB 2026–2027 takvimindeki</a>
+                            16–20 Kasım 2026 ve 8–12 Mart 2027 ara tatil haftaları, hafta sonlarıyla birlikte günlük ve haftalık çizelgelere dahil edilmez.
+                        </div>
+                    </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="startDate" class="form-label">Başlangıç Tarihi</label>
@@ -479,7 +492,7 @@
     <script src="js/main.js?v=manual-students-20260911"></script>
     <script src="js/pdf-processing.js?v=manual-students-20260911"></script>
     <script src="js/manual-students.js?v=manual-students-20260911"></script>
-    <script src="js/homework.js?v=blank-schedule-20260911"></script>
+    <script src="js/homework.js?v=term-calendar-20260912"></script>
     <script src="js/seating-plan.js"></script>
 </body>
 </html> 

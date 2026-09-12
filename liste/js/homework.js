@@ -1,6 +1,42 @@
 // Boş çizelge, yüklenmiş sınıf listesini veya diğer araçların seçimini değiştirmez.
 let homeworkClassName = null;
 
+// MEB 2026–2027 çalışma takvimi (13 Haziran 2026):
+// https://www.meb.gov.tr/2026-2027-egitim-ogretim-yili-takvimi-aciklandi/haber/41057/tr
+const homeworkTerms = {
+    first: { start: '2026-09-14', end: '2027-01-22' },
+    second: { start: '2027-02-08', end: '2027-06-25' }
+};
+const homeworkBreakWeeks = ['2026-11-16', '2027-03-08'];
+
+function homeworkDateValue(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+// date input'un UTC valueAsDate değeri yerine yerel takvim gününü kullan.
+function readHomeworkDate(id) {
+    return new Date(`${document.getElementById(id).value}T00:00:00`);
+}
+
+function getHomeworkWeekStart(date) {
+    const monday = new Date(date);
+    monday.setHours(0, 0, 0, 0);
+    monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7);
+    return monday;
+}
+
+function isHomeworkBreak(date) {
+    return homeworkBreakWeeks.includes(homeworkDateValue(getHomeworkWeekStart(date)));
+}
+
+function applyHomeworkTerm() {
+    const term = homeworkTerms[document.getElementById('homeworkTerm').value];
+    if (term) {
+        document.getElementById('startDate').value = term.start;
+        document.getElementById('endDate').value = term.end;
+    }
+}
+
 // Varsayılan tarih değerlerini ayarlama
 function setDefaultDates() {
     const today = new Date();
@@ -8,8 +44,9 @@ function setDefaultDates() {
     const endDate = new Date();
     endDate.setDate(today.getDate() + 28); // 4 hafta sonra
     
-    document.getElementById('startDate').valueAsDate = startDate;
-    document.getElementById('endDate').valueAsDate = endDate;
+    document.getElementById('homeworkTerm').value = 'custom';
+    document.getElementById('startDate').value = homeworkDateValue(startDate);
+    document.getElementById('endDate').value = homeworkDateValue(endDate);
 }
 
 function prepareHomeworkModal(className = null) {
@@ -174,7 +211,7 @@ function generateHomeworkSchedule(startDate, endDate, forPrint = false) {
     }
 
     if (periods.length === 0) {
-        showHomeworkError(`Seçilen tarih aralığında ${scheduleType === 'weekly' ? 'hafta' : 'gün'} bulunamadı. Tarihleri ve gün seçimini kontrol edin.`);
+        showHomeworkError(`Seçilen tarih aralığında çizelgeye eklenecek ${scheduleType === 'weekly' ? 'hafta' : 'gün'} bulunamadı. Ara tatil haftaları hariç tutulur; tarihleri ve gün seçimini kontrol edin.`);
         return;
     }
 
@@ -262,32 +299,26 @@ function getWeeksInRange(startDate, endDate) {
 
     console.log('Hafta hesaplama başlangıcı:', { startDate, endDate });
 
-    const currentDate = new Date(startDate);
+    const currentDate = getHomeworkWeekStart(startDate);
     let weekCounter = 0;
 
     // Her hafta için bir tarih aralığı ekle (20 hafta sınırını kaldırdık)
     while (currentDate <= endDate && weekCounter < 100) { // Güvenlik için maksimum 100 hafta
-        const weekStart = new Date(currentDate);
+        const weekStart = new Date(currentDate < startDate ? startDate : currentDate);
         const weekEnd = new Date(currentDate);
-        weekEnd.setDate(weekEnd.getDate() + 6); // 7 günlük hafta
+        weekEnd.setDate(weekEnd.getDate() + 4); // Pazartesi–Cuma
+        if (weekEnd > endDate) weekEnd.setTime(endDate.getTime());
 
-        // Haftaiçi günleri için başlangıç ve bitiş tarihlerini ayarla
-        const weekdayStart = getWeekdayStart(weekStart);
-        const weekdayEnd = getWeekdayEnd(weekEnd);
-
-        weeks.push({
-            start: new Date(weekStart),
-            end: new Date(weekEnd > endDate ? endDate : weekEnd),
-            weekdayStart: new Date(weekdayStart),
-            weekdayEnd: new Date(weekdayEnd > endDate ? endDate : weekdayEnd)
-        });
-
-        console.log(`Hafta ${weekCounter + 1} eklendi:`, {
-            start: formatDate(weekStart),
-            end: formatDate(weekEnd > endDate ? endDate : weekEnd),
-            weekdayStart: formatDate(weekdayStart),
-            weekdayEnd: formatDate(weekdayEnd > endDate ? endDate : weekdayEnd)
-        });
+        // Takvim haftalarını kullan: özel aralık tatilin ortasında başlasa da
+        // tatil günleri komşu haftanın sütununa taşınmaz.
+        if (weekStart <= weekEnd && !isHomeworkBreak(currentDate)) {
+            weeks.push({
+                start: new Date(weekStart),
+                end: new Date(weekEnd),
+                weekdayStart: new Date(weekStart),
+                weekdayEnd: new Date(weekEnd)
+            });
+        }
 
         // Sonraki haftaya geç
         currentDate.setDate(currentDate.getDate() + 7);
@@ -296,36 +327,6 @@ function getWeeksInRange(startDate, endDate) {
 
     console.log(`Toplam ${weeks.length} hafta bulundu`);
     return weeks;
-}
-
-// Haftanın ilk haftaiçi gününü bulma (Pazartesi)
-function getWeekdayStart(date) {
-    const dayOfWeek = date.getDay(); // 0=Pazar, 1=Pazartesi, ..., 6=Cumartesi
-    const weekdayStart = new Date(date);
-
-    if (dayOfWeek === 0) { // Pazar ise
-        weekdayStart.setDate(date.getDate() + 1); // Pazartesi'ye geç
-    } else if (dayOfWeek === 6) { // Cumartesi ise
-        weekdayStart.setDate(date.getDate() + 2); // Pazartesi'ye geç
-    }
-    // Pazartesi-Cuma arası ise değiştirme
-
-    return weekdayStart;
-}
-
-// Haftanın son haftaiçi gününü bulma (Cuma)
-function getWeekdayEnd(date) {
-    const dayOfWeek = date.getDay(); // 0=Pazar, 1=Pazartesi, ..., 6=Cumartesi
-    const weekdayEnd = new Date(date);
-
-    if (dayOfWeek === 0) { // Pazar ise
-        weekdayEnd.setDate(date.getDate() - 2); // Cuma'ya geç
-    } else if (dayOfWeek === 6) { // Cumartesi ise
-        weekdayEnd.setDate(date.getDate() - 1); // Cuma'ya geç
-    }
-    // Pazartesi-Cuma arası ise değiştirme
-
-    return weekdayEnd;
 }
 
 // Tarih aralığındaki günleri hesaplama (seçilen günler için)
@@ -358,7 +359,7 @@ function getDaysInRange(startDate, endDate) {
     while (currentDate <= endDate && dayCounter < 300) { // Güvenlik için maksimum 300 gün
         const dayOfWeek = currentDate.getDay(); // 0=Pazar, 1=Pazartesi, ..., 6=Cumartesi
         
-        if (selectedDays.includes(dayOfWeek)) {
+        if (selectedDays.includes(dayOfWeek) && !isHomeworkBreak(currentDate)) {
             days.push({
                 start: new Date(currentDate),
                 end: new Date(currentDate),
@@ -586,8 +587,8 @@ function createPrintableVersion(className, table) {
 
 // Yazdırma işlemi
 document.getElementById('printScheduleBtn').addEventListener('click', function() {
-    const startDate = document.getElementById('startDate').valueAsDate;
-    const endDate = document.getElementById('endDate').valueAsDate;
+    const startDate = readHomeworkDate('startDate');
+    const endDate = readHomeworkDate('endDate');
     
     // Yazdırma için yeni çizelge oluştur (forPrint=true)
     const generatedPrintArea = generateHomeworkSchedule(startDate, endDate, true);
@@ -943,7 +944,11 @@ function createCustomPrintableVersion(className, table) {
 // Özel çizelge event listener'ları (DOMContentLoaded event'i içinde çalışacak)
 document.addEventListener('DOMContentLoaded', function() {
     const homeworkModal = document.getElementById('homeworkScheduleModal');
-    const invalidateHomeworkPreview = () => {
+    const invalidateHomeworkPreview = event => {
+        if (event.target.id === 'homeworkTerm') applyHomeworkTerm();
+        if (['startDate', 'endDate'].includes(event.target.id)) {
+            document.getElementById('homeworkTerm').value = 'custom';
+        }
         updateHomeworkStudentMode();
         document.getElementById('daySelectionArea').style.display = document.getElementById('dailySchedule').checked ? '' : 'none';
         resetHomeworkState();
@@ -954,8 +959,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const generateScheduleButton = document.getElementById('generateScheduleBtn');
     if (generateScheduleButton) {
         generateScheduleButton.addEventListener('click', function() {
-            const startDate = document.getElementById('startDate').valueAsDate;
-            const endDate = document.getElementById('endDate').valueAsDate;
+            const startDate = readHomeworkDate('startDate');
+            const endDate = readHomeworkDate('endDate');
             generateHomeworkSchedule(startDate, endDate);
         });
     }
